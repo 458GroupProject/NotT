@@ -13,7 +13,7 @@ def __albacore_init__():
 	
 	"""
 	
-def albacore_init(self):
+def albacore_fill(self):
 	# Fill with Albacore tuna
 	
 def albacore_run_sim(self):
