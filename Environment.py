@@ -14,3 +14,6 @@ class Environment:
 
     def modifyEnvironment(self, xLoc, yLoc, width, length, temp, salinity):
         pass
+
+    def getLocation(self, tuna):
+        pass
