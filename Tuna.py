@@ -8,10 +8,10 @@ class Tuna:
         self.sightRadius = sightRadius 
         self.state = state # 1=alive, 2=deadStarve, 3=deadSushi'd
 
-    def move():
+    def move(environment):
         pass
 
-    def eat():
+    def eat(amount):
         pass
 
 
