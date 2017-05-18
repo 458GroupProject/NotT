@@ -13,8 +13,8 @@ def __Bluefin_init__():
 	
 	"""
 	
-def Bluefin_init(self):
-	# Fill with Albacore tuna
+def Bluefin_fill(self):
+	# Fill with Bluefin tuna
 	
 def Bluefin_run_sim(self):
 	# Run simulation for _____ (arbitrary unit of time)
