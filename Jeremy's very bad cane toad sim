@@ -1,0 +1,514 @@
+#Jeremy Newton
+#CSS 458 A
+#5/11/2017
+#Agent-Based Modeling
+
+#import section
+import numpy as N
+import matplotlib.pyplot as plt
+
+"""
+Can Toad Module:
+    All classes and agents are in this file
+    toads do not occupy a grid space, but every grid space is an agent
+    which can have a boolean declaring it has a toad. Toad population is maintained
+    in a list, and each toad has a reference to the agent which is its location
+
+
+
+Project 1 results:
+Avg alive:    0
+Avg Croaked 1.21
+Avg Migrated 30.77
+
+For some reason my toads are not dying as much as they should be according to the
+book with these global constants as they were in table 11.4.1 I have also noticed a tendency
+for toads to travel along the very bottom (South) border much more frequently than
+the nother, but inspecting my code for random hops, searching for food and water
+it does not seem there is any favoring of moving south rather than north
+
+Testing shows that the toads are always usually comfortable with water and food
+They are too good at finding resources?
+
+For this reason I'm goign to change the Global variables by increasing
+water hopping and energy hopping by * 2.0 
+
+So that hopefully the lag correlation plot will be more interesting.
+
+"""
+
+#Global Constants:
+AMT_AWP=1
+AMT_AWP_ADJACENT=.4
+AMT_AWP_OVER2=.2
+AMT_DRINK=.05
+AMT_EAT=.01
+AMT_MIN_INIT=.88
+DESSICATE=.6
+ENERGY_HOPPING=.004
+FOOD_CELL=.05
+FRACTION_WATER=.6
+INIT_PERCENT_TOADS=80
+INIT_RANGE=.12
+MAY_HOP=.5
+PERCENT_AWPS=.01
+PERCENT_AWPS_FENCED=.5#CHECK
+STARVE=.6
+WATER_HOPPING=.004
+WOULD_LIKE_DRINK=.9
+WOULD_LIKE_EAT=.9
+
+#Global Variables
+numAlive=0
+numCroaked=0
+numMigrated=0
+
+toads=[]
+grid=N.zeros((42,42))
+
+#my further inits
+totAlive=0
+totCroaked=0
+totMig=0
+plt.ion()
+
+#alive at cycle
+alives=[]
+
+class agent(object):
+    food=FOOD_CELL
+    water=0
+    hastoad=False
+    hasGrace=False
+    def updateFood(self,amt):
+        self.food-=amt
+
+class AWP(agent):
+    water=AMT_AWP
+
+class FencedAWP(agent):
+    water=AMT_AWP
+
+class AWPAdjacent(FencedAWP):
+    water=AMT_AWP_ADJACENT
+
+class AWPOver2(agent):
+    water=AMT_AWP_OVER2
+
+class Desert(agent):
+    food=FOOD_CELL
+
+class StartBorder(agent):
+    food=-1
+    water=-1
+
+class Border(agent):
+    food=-1
+    water=-1
+    
+class FinishBorder(agent):
+    food=2
+
+class toad(agent):
+    energy=0
+    water=0
+    availableFood=0
+    availableMoisture=0
+    food=-1
+    moisture=-1
+    amtEat=0
+    amtDrink=0
+    
+    #toad's location
+    #row
+    r=0
+    #column
+    c=0
+    
+    #the agent of the grid which contains this toad
+    location=0
+    
+    #toad constructor
+    def __init__(self,x,y,a,nrg,h2o):
+        self.r=x
+        self.c=y
+        self.location=a
+        self.energy=nrg
+        self.water=h2o
+   
+    def toadMayEat(self):
+       if self.energy<WOULD_LIKE_EAT and self.location.food>0:
+           self.eat() 
+       else:
+           self.amtEat=0
+            
+    def eat(self):
+        self.amtEat=N.min([[AMT_EAT,(1.0-self.energy),self.location.food]])
+        
+        self.energy+=self.amtEat
+        
+        self.water=N.min([[self.water+(FRACTION_WATER*self.amtEat),1.0]])
+      
+        self.location.updateFood(self.amtEat)
+        
+    
+    def toadMayDrink(self):
+        if self.water<WOULD_LIKE_DRINK and self.location.water>0:
+            self.drink()
+        else:
+            self.amtDrink=0
+    
+    def drink(self):
+        self.amtDrink=N.min([[AMT_DRINK,(1.0-self.water)]])
+        self.water+=self.amtDrink    
+     
+    def toadMove(self):
+        
+        if self.water<WOULD_LIKE_DRINK:
+            self.thirsty()
+        elif self.energy<WOULD_LIKE_EAT:
+            self.lookForFood()
+        elif N.random.uniform<MAY_HOP:
+            self.hopForFun()
+        else:
+            self.stayHere()
+    
+    def thirsty(self):
+        if type(self.location) is AWP:
+            self.stayHere()
+        elif type(self.location) is Desert:
+            self.lookForMoisture()
+        elif type(self.location) is StartBorder:
+            self.moveW()
+        else:
+            self.stayHere()
+    
+    def lookForFood(self):
+        global grid
+        if type(self.location) is StartBorder:
+            self.moveW()
+        else:
+            mostfood=(0,0)
+            coords = [(1,0),(1,1),(1,-1),(0,1),(0,-1),(-1,1),(-1,0),(-1,-1),(0,0)]
+            for c in coords:
+                f1= grid[self.r+c[0],self.c+c[1]].food
+                f2=grid[self.r+mostfood[0],self.c+mostfood[1]].food
+                empty= not grid[self.r+c[0],self.c+c[1]].hastoad
+                unfenced= (not type(grid[self.r+c[0],self.c+c[1]]) is FencedAWP and (not type(grid[self.r+c[0],self.c+c[1]]) is Border))
+                if f1>f2 and empty and unfenced:
+                    mostfood=c
+                elif f1==f2 and empty and unfenced:
+                    if N.random.uniform()>.5:
+                        mostfood=c
+            self.hopHere((self.r+mostfood[0],self.c+mostfood[1]))
+            
+    
+    def hopForFun(self):
+        if type(self.location) is StartBorder:
+            self.moveW()
+            return
+
+        ncoord=(0,0)
+        newloc=self.location
+        coords = N.aray([(1,0),(1,1),(1,-1),(0,1),(0,-1),(-1,1),(-1,0),(-1,-1),(0,0)])
+        while type(newloc) is Border or type(newloc) is FencedAWP or newloc.hastoad==True:
+            coords.remove(ncoord)
+            if len(coords)==0:
+                self.stayHere()
+                return
+            ncoord = N.random(coords)            
+            newloc=grid[self.r+ncoord[0],self.c+ncoord[1]] 
+        self.hopHere(newloc)
+    
+    def stayHere(self):
+        self.useWaterEnergySitting()
+    
+    def lookForMoisture(self):
+        
+        mostmoist=(0,0)
+        coords = [(1,0),(1,1),(1,-1),(0,1),(0,-1),(-1,1),(-1,0),(-1,-1)]
+        for c in coords:
+            w1= grid[self.r+c[0],self.c+c[1]].water
+            w2=grid[self.r+mostmoist[0],self.c+mostmoist[1]].water
+            empty= not grid[self.r+c[0],self.c+c[1]].hastoad
+            unfenced= not type(grid[self.r+c[0],self.c+c[1]]) is FencedAWP and (not type(grid[self.r+c[0],self.c+c[1]]) is Border)
+            if w1>w2 and empty and unfenced:
+                mostmoist=c
+            elif w1==w2 and empty and unfenced:
+                if N.random.uniform()>.5:
+                    mostmoist=c
+        
+        self.hopHere((self.r+mostmoist[0],self.c+mostmoist[1]))
+    
+    def moveW(self):       
+        if grid[self.r][self.c-1].hastoad or type(grid[self.r][self.c-1]) is FencedAWP:
+            self.stayHere()
+            return
+        self.hopHere((self.r,self.c-1))
+    
+    #loc=exact grid coord of new location for toad
+    def hopHere(self,loc):
+        global grid
+        self.availableFood=self.location.food
+        self.availableMoisture=self.location.water
+        self.useWaterEnergyHopping()
+        self.location.toad=False
+        self.r=loc[0]
+        self.c=loc[1]
+        self.location=grid[self.r,self.c]
+        self.location.toad=True
+
+    
+    def useWaterEnergyHopping(self):
+        self.energy-=ENERGY_HOPPING
+        if self.availableMoisture<=0:
+            self.water-=WATER_HOPPING
+    
+    def useWaterEnergySitting(self):
+        self.energy-=.5*ENERGY_HOPPING
+        if self.availableMoisture<=0:
+            self.water-=.5*WATER_HOPPING
+    
+    def changeCounts(self):
+        global numAlive,numCroaked, numMigrated, toads
+        
+        if self.water<DESSICATE or self.energy<STARVE:
+            
+            numAlive-=1
+            numCroaked+=1
+            toads.remove(self)
+            self.location.hasGrave=True
+            self.location.hastoad=False
+
+        
+        elif type(self.location) is FinishBorder:
+            numAlive-=1
+            numMigrated+=1
+            toads.remove(self)
+            self.location.hastoad=False                                                                                                                                                                                              
+
+def init():
+    global numAlive, numCroaked, numMigrated, toads,grid
+    numAlive=0
+    numCroaked=0
+    numMigrated=0
+    toads=[]
+    #creating 42 by 42 empty agent grid
+    simplelist = [agent() for i in xrange(42*42)]    
+    grid=N.array(simplelist)
+    grid=N.reshape(grid, (42,42))
+    
+    # creating borders in grid
+    for i in range(42):
+        for j in range(42):
+            if i==0 or i==41:
+                grid[i,j]=Border()
+            elif j==41:
+                 grid[i,j]=StartBorder()
+            elif j==0:
+                 grid[i,j]=FinishBorder()   
+            #also creating random AWPs and Fenced AWPs as per book proportions
+            else:
+                r=N.random.uniform()
+                if r<(PERCENT_AWPS):
+                    r2=N.random.uniform()
+                    if(r2<PERCENT_AWPS_FENCED):
+                        grid[i,j]=FencedAWP()
+                    else:
+                        grid[i,j]=AWP()
+                else:
+                    grid[i,j]=Desert()
+    #for every AWP, make surrounding cells AWPAdjacent
+    for i in range(42):
+        for j in range(42):            
+            if type(grid[i][j]) is AWP or type(grid[i][j]) is FencedAWP:
+                for ii in [1,0,-1]:
+                    for jj in [1,0,-1]:
+                        x=i+ii
+                        y=j+jj
+                        #do no overwrite borders or AWP's
+                        if (x>=1 and x<=40 and y>=1 and y<=40 and 
+                            type(grid[x][y]) is not AWP 
+                            and type(grid[x][y]) is not FencedAWP):
+                            grid[x,y]=AWPAdjacent()
+    
+    #for every AWPAdjacent, make surrounding cells AWPOver2
+    for i in range(42):
+        for j in range(42):            
+            if type(grid[i][j]) is AWPAdjacent:
+                for ii in [1,0,-1]:
+                    for jj in [1,0,-1]:
+                        x=i+ii
+                        y=j+jj
+                        #do no overwrite borders or AWP's, OR AWPAdjacents
+                        if (x>=1 and x<=40 and y>=1 and y<=40 and 
+                            type(grid[x][y]) is not AWP 
+                            and type(grid[x][y]) is not FencedAWP and
+                            type(grid[x][y]) is not AWPAdjacent):
+                            grid[x,y]=AWPOver2()                             
+    
+    #list of toads in the sim
+    toads=[]
+    
+    #adding random toads to start border cells with probability init percent toads
+    # 
+    for row in range(40):
+        rand=N.random.uniform()
+        if rand<INIT_PERCENT_TOADS/100.0:
+            grid[row+1][-1].hastoad=True
+            
+            numAlive = numAlive+1
+            
+            #init random starting energy and water levels for toad
+            nrg=AMT_MIN_INIT+N.random.uniform()*INIT_RANGE
+            
+            h2o=AMT_MIN_INIT+N.random.uniform()*INIT_RANGE
+            
+            toads.append(toad(row+1,41,grid[row+1][41],nrg,h2o))
+            
+            row+=1
+ 
+def consumption():
+    global toads
+    for t in toads:
+        t.toadMayEat()
+        t.toadMayDrink()     
+ 
+def move():
+    global toads
+    for t in toads:
+        t.toadMove()
+
+def remove():
+    global toads
+    for t in toads:
+        
+        t.changeCounts()   
+             
+def animate(cyc):
+    global grid
+    plt.clf()
+    for r in range(42):
+        for c in range (42):
+            ag=grid[r][c]                        
+            alpha=ag.food*10+.1
+            if type(ag) is Desert: 
+                plt.scatter(c,r,color=(0,0,0,alpha),marker='s')
+            
+            elif type(ag) is Border:
+                plt.scatter(c,r,color='1',marker='s')
+            
+            elif type(ag) is FinishBorder:
+                plt.scatter(c,r,color=(.1,1,.2),marker='s')            
+
+            elif type(ag) is StartBorder:
+                plt.scatter(c,r,color=(.4,.4,.4),marker='s')            
+            
+            elif type(ag) is AWP: 
+                plt.scatter(c,r,color=(0,0,1,alpha))
+            
+            elif type(ag) is FencedAWP: 
+                plt.scatter(c,r,color=(0,0,1,alpha),marker='s')
+            
+            elif type(ag) is AWPAdjacent: 
+                plt.scatter(c,r,color=(0,.5,.5,alpha),marker='s')
+            
+            elif type(ag) is AWPOver2: 
+                plt.scatter(c,r,color=(.5,0,.5,alpha),marker='s')            
+            
+        for t in toads:
+                plt.scatter(t.c,t.r,color=(1,0,0))
+    
+    plt.title("cycle #"+ str(cyc))    
+    plt.show()
+    #uncomment for animation mode
+    #plt.pause(.001)
+
+def runSim():
+    global numAlive, numCroacked, numMigrated, toads, grid
+    phase=0
+    cycle=0
+    for i in range (50000):
+            #Simulation Driver
+        if phase==0:
+            init()
+            phase+=1
+        
+        elif phase==1:
+            consumption()
+            phase+=1
+        
+        elif phase==2:
+            move()
+            phase+=1
+        
+        elif phase==3:
+            remove()
+            alives.append(numAlive)
+            #uncomment for live animation (very slow)
+            """if cycle%5==0:
+                animate(cycle)
+                
+                #creating 2 individual frames
+            if(cycle==500):
+                fig1=plt.figure()
+                animate(cycle)
+            elif cycle==1500:
+                fig2=plt.figure()
+                animate(cycle)
+                """
+            if numAlive==0:
+                    terminate()
+                    return
+            else:
+                #print numAlive
+                phase=1
+                cycle+=1
+                
+
+def terminate():
+    print "numAlive, numCroacked, numMigrated"
+    print numAlive
+    print numCroaked
+    print numMigrated
+    print "--" 
+    global totAlive, totCroaked, totMig
+    totAlive+=numAlive
+    totCroaked+=numCroaked
+    totMig+=numMigrated   
+
+
+totAlive=0
+totCroaked=0
+totMig=0
+
+#project 1
+"""
+for i in range(100):
+    runSim()
+
+totAlive/=100.0
+
+totCroaked/=100.0
+
+totMig/=100.0
+
+print totAlive
+print totCroaked
+print totMig
+"""
+
+runSim()
+
+#lag correlation plot
+alive100=[]
+
+for i in range(len(alives)):
+    if i>99:
+        alive100.append(alives[i])
+#trimming
+for i in range(100):
+    alives.pop()
+
+plt.plot(alives, alive100)
+plt.show()
