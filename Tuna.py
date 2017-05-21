@@ -11,7 +11,7 @@ class Tuna:
     def move(environment):
         pass
 
-    def eat(amount):
+    def eat(environment, amount):
         pass
 
 
