@@ -37,8 +37,8 @@ class Tuna:
     def __init__(self, xLoc, yLoc, length = INIT_LENGTH, sightRadius=1, energy=INIT_ENERGY, state="Alive"):
         """Constructor that makes a Tuna object.
 
-        xLoc: gives the x-coordinate
-        yLoc: gives the y-coordinate
+        xLoc: gives the x-coordinate also known as Column
+        yLoc: gives the y-coordinate also known as Row
         weight: gives the weight
         size: gives the size
         sightRadius: gives the amount of squares the Tuna can see
