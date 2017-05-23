@@ -21,7 +21,7 @@ numCorpsesEaten=0
 #list of all existing tuna
 tuna=[]                      
 
-grid                                           
+grid=0                                          
 
 """
 Initializes the grid with water agents, then adds food and prey according
@@ -62,7 +62,7 @@ def consumption():
 Loops through all tuna agents and calls their move methods
 """
 def movement():
-    for r in tuna:
+    for t in tuna:
         t.move(grid)
 
 """
@@ -70,18 +70,18 @@ removes tuna who starved to death, or atleast marks them as dead
 """  
 def remove():
     for t in tuna:
-        t.check()
+        t.update(grid)
 
 """
 calls all the tuna grow methods
 """
 def growth():
     for t in runa:
-        t.grow()
+        t.grow(grid)
 
 
 def run():
-    
+    global grid
     #how many time steps one simulation will last
     # 30 days, 1 time step per hour 30x24=720
     iterations=720

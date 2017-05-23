@@ -63,33 +63,35 @@ class Tuna:
             raise ValueError
             
         
-    def move(self, xMax, yMax):
+    def move(self, grid):
         """Moves the Tuna object
 
         xMax: grid x boundary
         yMax: grid y boundary
 
         """
+        xMax=np.shape(grid)[1]  #max rows
+        yMax=np.shape(grid)[0]  #max cols
         # Make Tuna move a square
         move = [-1, 1]
         
         np.random.shuffle(move)
-        self.xLoc += move[0]
+        self.x += move[0]
         
         np.random.shuffle(move)
-        self.yLoc += move[0]
+        self.y += move[0]
         
         # Check for x boundaries
-        if self.xLoc < 0:
-            self.xLoc = 0
-        if self.xLoc > xMax:
-            self.xLoc = xMax
+        if self.x < 0:
+            self.x = 0
+        if self.x > xMax:
+            self.x = xMax
             
         # Check for y boundaries
-        if self.yLoc < 0:
-            self.yLoc = 0
-        if self.yLoc > yMax:
-            self.yLoc = yMax
+        if self.y < 0:
+            self.y = 0
+        if self.y > yMax:
+            self.y = yMax
 
     def eat(self, grid):
         """Tuna eats food and gains amount proportional to weight
@@ -122,12 +124,16 @@ class Tuna:
                 grid[self.x, self.y].updateFood(-amtPlanktonEat, -amtFishEat)           
             
             
-    def update(self):
+    def update(self, grid):
         """Updates the weight and size of the Tuna.
         """
+        if self.energy<STARVE:
+            return False
+        else:
+            return True
+
+    def grow(self):
         # If under STARVED_THRES, Tuna is starving and does not grow
         if self.energy > STARVED_THRES:
             self.length *= (1 + ((self.energy - STARVED_THRES) * GROWTH_MULTIPLIER))
-
-
 
