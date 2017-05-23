@@ -56,10 +56,12 @@ class Tuna:
     def stateInt(self):
         if self.state == "Alive":
             return 1
-        elif self.state == "DeadStarved":
+        elif self.state == "Starving":
             return 2
-        elif self.state == "DeadEaten":
+        elif self.state == "DeadStarved":
             return 3
+        elif self.state == "DeadEaten":
+            return 4
         else:
             raise ValueError
             

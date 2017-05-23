@@ -16,7 +16,7 @@ class animate:
                 if w.tuna:
                     plt.scatter(c,r,color=(1,0,0,1),marker='s')
                 else:    
-                        plt.scatter(c,r,color=(0,0,1,1),marker='s')
+                    plt.scatter(c,r,color=(0,0,1,1),marker='s')
         
         plt.title("Tuna, cycle #"+str(cycle))
         plt.draw()
