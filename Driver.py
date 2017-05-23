@@ -2,15 +2,25 @@
 Model Driver
 """
 import numpy as N
-from imports import*
+
 from Consts import*
 from water import water
 from Tuna import Tuna
-from Globalvars import*
+from omfg import*
 
-from animator import*
 
-            
+ 
+"""
+Simulation variables
+"""           
+numAlive=0
+numCorpses=0
+numEatenAlive=0
+numCorpsesEaten=0
+
+#list of all existing tuna
+tuna=[]                      
+                                             
 
 """
 Initializes the grid with water agents, then adds food and prey according
@@ -21,7 +31,8 @@ Starting population will not be exact, but the target init popualtion/ grid area
 will be the liklihookd of a larva starting in a certain cell
 """
 def init():
-    #global grid, numAlive, tuna, tankh, tankw
+
+    global numAlive, tuna, tankh, tankw
     #creating h by w water grid
     simplelist = [water(0,0,0) for w in xrange(tankh*tankw)]    
     grid=N.array(simplelist)
@@ -31,12 +42,12 @@ def init():
     for r in range(tankh):
         #loop through columns in width
         for c in range(tankw):
-                r = N.random.uniform()
-                if r > initPop/(tankw*tankh):
+                rand = N.random.uniform()
+                if rand < (float(initPop)/(tankw*tankh)):
                     t = Tuna(c,r)
                     tuna.append(t)
                     grid[r][c].tuna=True
-                        
+    return grid                  
 
 """
 Loops through all tuna agents and calls tunaMayEat()
@@ -66,8 +77,6 @@ def growth():
 
 def run():
     
-    global grid
-    
     #how many time steps one simulation will last
     # 30 days, 1 time step per hour 30x24=720
     iterations=720
@@ -75,17 +84,18 @@ def run():
     runs=1
     
     phase=0
-    
-    A=animator()
+
+    A=animate()
     
     for i in range(runs):
     
         for j in range(iterations):
             if(phase==0):
-                init()
-                A.hello()
+                grid = init()
                 
-                #testing
+                                #testing visualization of init grid
+                A.vis(grid)
+
                 
             elif(phase==1):
                 consumption() 
@@ -99,6 +109,6 @@ def run():
             phase+=1
             if phase==5:
                 phase=1
-            print phase
+
 
 run()

@@ -7,9 +7,9 @@ from Tuna import Tuna
 from Globalvars import*
 
 #tank width and height
-tankw=10
+tankw=10.0
 
-tankh=10
+tankh=10.0
 
 #initial tuna larvae
-initPop=10
+initPop=10.0
