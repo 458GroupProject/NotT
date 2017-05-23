@@ -9,6 +9,18 @@ from Tuna import Tuna
 from omfg import*
 
 
+#-------------------------------------------------------------------------------
+"""
+History: 
+    + Jeremy
+    + Matt
+    + 05/23/2017: Tien
+        - Added boundary cells to the grid in the init() function
+        - Added okayMoveGrid(baseGrid)
+        
+"""
+#-------------------------------------------------------------------------------
+
  
 """
 Simulation variables
@@ -34,21 +46,46 @@ will be the liklihookd of a larva starting in a certain cell
 def init():
 
     global numAlive, tuna, tankh, tankw
-    #creating h by w water grid
-    simplelist = [water(0,0,0) for w in xrange(tankh*tankw)]    
+    #creating h by w water grid, with 1 boundary
+    simplelist = [water(0,0,0) for w in xrange((tankh+2) * (tankw+2))]    
     grid=N.array(simplelist)
-    grid=N.reshape(grid, (tankh,tankw))    
+    grid=N.reshape(grid, (tankh + 2,tankw + 2))    
                 
     #loop through rows along height        
-    for r in range(tankh):
+    for row in range(tankh + 2):
         #loop through columns in width
-        for c in range(tankw):
+        for col in range(tankw + 2):
+            #update the food to -1 to mark boundary cells
+            if row == 0 or row == tankh + 1 or col == 0 or col == tankw + 1:
+                grid[row][col].updateFood(-1,-1)
+            #randomly assign tuna
+            else:
                 rand = N.random.uniform()
                 if rand < (float(initPop)/(tankw*tankh)):
-                    t = Tuna(c,r)
+                    t = Tuna(col,row)
                     tuna.append(t)
-                    grid[r][c].tuna=True
+                    grid[row][col].tuna=True
     return grid                  
+
+
+"""
+Create a copy of the base grid and mark cells that are occupied by tuna or are
+boundary cells (0 = unoccupied cell; 1 = boundary cell; 2 = tuna occupied cell)
+
+    + baseGrid: the original base grid
+"""
+def okayMoveGrid(baseGrid):
+    moveGrid = N.zeros(baseGrid.shape, dtype = int)
+    #mark boundary cells
+    moveGrid[:,0] = 1
+    moveGrid[:,-1] = 1
+    moveGrid[0,:] = 1
+    moveGrid[-1,:] = 1
+    #mark tuna occupied cells
+    for i in tuna:
+        moveGrid[i.y, i.x] = 2
+    return moveGrid
+
 
 """
 Loops through all tuna agents and calls tunaMayEat()
@@ -76,20 +113,19 @@ def remove():
 calls all the tuna grow methods
 """
 def growth():
-    for t in tuna:
-        t.grow()
+    for t in runa:
+        t.grow(grid)
 
 
 def run():
     global grid
     #how many time steps one simulation will last
     # 30 days, 1 time step per hour 30x24=720
-    iterations=100
+    iterations=720
     
     runs=1
     
     phase=0
-    cycle=0
 
     A=animate()
     
@@ -99,7 +135,9 @@ def run():
             if(phase==0):
                 grid = init()
                 
-            #testing visualization of init grid
+                                #testing visualization of init grid
+                A.vis(grid)
+
                 
             elif(phase==1):
                 consumption() 
@@ -109,12 +147,10 @@ def run():
                 remove()
             elif(phase==4):
                 growth()
-                A.vis(grid,cycle)
 
             phase+=1
             if phase==5:
                 phase=1
-                cycle+=1
 
 
 run()

@@ -11,6 +11,8 @@
 # - 22 May 2017: Tien Huynh
 #                Removed weight attribute, added length
 #                Changed eat() and update() methods
+# - 23 May 2017: Tien Huynh
+#                Changed move() to randomeMove() and implemented
 # Notes:
 # - Written for Python 3
 # - See import statements throughout for more information on non-
@@ -31,7 +33,6 @@ GROWTH_MULTIPLIER = 0.5
 
 
 import numpy as np
-from Consts import*
 
 class Tuna:
     
@@ -56,52 +57,44 @@ class Tuna:
     def stateInt(self):
         if self.state == "Alive":
             return 1
-        elif self.state == "Starving":
-            return 2
         elif self.state == "DeadStarved":
-            return 3
+            return 2
         elif self.state == "DeadEaten":
-            return 4
+            return 3
         else:
             raise ValueError
             
-        
-    def move(self, grid):
-        """Moves the Tuna object
 
-        xMax: grid x boundary
-        yMax: grid y boundary
-            
-            Random moving for now
+    def randomMove(self, okayMoveGrid):
+        """Randomly move the tuna to a neighboring cell if available
+        Only one tuna is allowed on each cell
+
+        + okayMoveGrid: the boolean grid that specifies which cell is okay to move
+                        to (0 = unoccupied cell; 1 = boundary cell; 2 = tuna occupied cell)
+                        Obtained by calling okayMoveGrid(baseGrid) in Driver.py
+
         """
-        xMax=np.shape(grid)[1]-1  #max rows
-        yMax=np.shape(grid)[0]-1  #max cols
-        
-        grid[self.y,self.x].tuna=False
-        
-        # Make Tuna move a square
-        move = [-1,0,1]
-        
-        np.random.shuffle(move)
-        self.x += move[0]
-        
-        np.random.shuffle(move)
-        self.y += move[0]
-        
-        # Check for x boundaries
-        if self.x < 0:
-            self.x = 0
-        if self.x > xMax:
-            self.x = xMax
-            
-        # Check for y boundaries
-        if self.y < 0:
-            self.y = 0
-        if self.y > yMax:
-            self.y = yMax
-    
-        grid[self.y,self.x].tuna=True        
-        
+        x = self.x
+        y = self.y
+        newX = 0   #the next potential x-coordinate
+        newY = 0   #the next potential y-coordinate
+        successMove = False    #flag to mark a successful move
+
+        #check if there is any empty neighboring cell
+        if 0 in okayMoveGrid[(y-1):(y+2), (x-1):(x+2)]:
+            #randomly generate a move until found an empty neighboring cell
+            while (successMove == False):
+                newX = self.x + np.random.randint(-1, high=2)
+                newY = self.y + np.random.randint(-1, high=2)
+                if okayMoveGrid[newY, newX] == 0:
+                    successMove = True
+                    #update the okayMoveGrid of this new move
+                    okayMoveGrid[y,x] = 0
+                    okayMoveGrid[newY,newX] = 2
+                    self.x = newX
+                    self.y = newY
+      
+
     def eat(self, grid):
         """Tuna eats food and gains amount proportional to weight
 
@@ -116,27 +109,26 @@ class Tuna:
             #Case of small larvae that can only eat plankton
             if self.length < PLANKTON_ONLY_SIZE:
                 #check the maximum food it can eat from the cell
-                amtPlanktonEat = min((MAX_ENERGY - self.energy) / PLANKTON_ENERGY_MULTIPLIER * self.length, grid[self.x, self.y].foodPlankton)
+                amtPlanktonEat = min((MAX_ENERGY - self.energy) / PLANKTON_ENERGY_MULTIPLIER * self.length, grid[self.y, self.x].foodPlankton)
                 #update energy value of the tuna
                 self.energy += amtPlanktonEat * PLANKTON_ENERGY_MULTIPLIER / self.length
                 #update food value of the water cell
-                grid[self.x, self.y].updateFood(-amtPlanktonEat, -amtFishEat)
+                grid[self.y, self.x].updateFood(-amtPlanktonEat, -amtFishEat)
             #Case of large larvae that can eat both plankton and fish-based
             else:
                 #priority fish-based food
-                amtFishEat = min((MAX_ENERGY - self.energy) / FISH_ENERGY_MULTIPLIER * self.length, grid[self.x, self.y].foodFish)  
+                amtFishEat = min((MAX_ENERGY - self.energy) / FISH_ENERGY_MULTIPLIER * self.length, grid[self.y, self.x].foodFish)  
                 self.energy += amtFishEat * FISH_ENERGY_MULTIPLIER / self.length
                 #if tuna's energy is still not maxed out after eating fish-based food, eat plankton also
                 if self.energy < MAX_ENERGY:
-                    amtPlanktonEat = min((MAX_ENERGY - self.energy) / PLANKTON_ENERGY_MULTIPLIER * self.length, grid[self.x, self.y].foodPlankton) 
+                    amtPlanktonEat = min((MAX_ENERGY - self.energy) / PLANKTON_ENERGY_MULTIPLIER * self.length, grid[self.y, self.x].foodPlankton) 
                     self.energy += amtPlanktonEat * PLANKTON_ENERGY_MULTIPLIER / self.length
-                grid[self.x, self.y].updateFood(-amtPlanktonEat, -amtFishEat)           
+                grid[self.y, self.x].updateFood(-amtPlanktonEat, -amtFishEat)           
             
             
     def update(self, grid):
         """Updates the weight and size of the Tuna.
         """
-        global STARVE
         if self.energy<STARVE:
             return False
         else:
