@@ -54,25 +54,29 @@ Loops through all tuna agents and calls tunaMayEat()
 which will also trigger hunting behavior
 """    
 def consumption():
-    pass
+    for t in tuna:
+        t.eat(grid)
 
 """
 Loops through all tuna agents and calls their move methods
 """
 def movement():
-    pass
+    for r in tuna:
+        t.move(grid)
 
 """
 removes tuna who starved to death, or atleast marks them as dead
 """  
 def remove():
-    pass
+    for t in tuna:
+        t.check()
 
 """
 calls all the tuna grow methods
 """
 def growth():
-    pass
+    for t in runa:
+        t.grow()
 
 
 def run():
