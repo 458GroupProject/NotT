@@ -25,8 +25,8 @@ class Tuna:
     def __init__(self, xLoc, yLoc, weight=0.0767, size=2.794, sightRadius=1, energy=0.5, state="Alive"):
         """Constructor that makes a Tuna object.
 
-        xLoc: gives the x-coordinate
-        yLoc: gives the y-coordinate
+        xLoc: gives the x-coordinate also known as Column
+        yLoc: gives the y-coordinate also known as Row
         weight: gives the weight
         size: gives the size
         sightRadius: gives the amount of squares the Tuna can see
@@ -42,11 +42,11 @@ class Tuna:
         self.state = state
 
     def stateInt(self):
-        if self.state = "Alive":
+        if self.state == "Alive":
             return 1
-        elif self.state = "DeadStarved":
+        elif self.state == "DeadStarved":
             return 2
-        elif self.state = "DeadEaten":
+        elif self.state == "DeadEaten":
             return 3
         else:
             raise ValueError

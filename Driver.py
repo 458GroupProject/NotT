@@ -1,8 +1,15 @@
 """
 Model Driver
 """
-import Consts.py
-import Globalvars.py
+import numpy as N
+from imports import*
+from Consts import*
+from water import water
+from Tuna import Tuna
+from Globalvars import*
+
+from animator import*
+
             
 
 """
@@ -14,22 +21,21 @@ Starting population will not be exact, but the target init popualtion/ grid area
 will be the liklihookd of a larva starting in a certain cell
 """
 def init():
-            Global grid, numAlive
+    #global grid, numAlive, tuna, tankh, tankw
     #creating h by w water grid
-    simplelist = [water() for w in xrange(42*42)]    
+    simplelist = [water(0,0,0) for w in xrange(tankh*tankw)]    
     grid=N.array(simplelist)
-    grid=N.reshape(grid, (42,42)     
-            
-            
+    grid=N.reshape(grid, (tankh,tankw))    
+                
     #loop through rows along height        
     for r in range(tankh):
-            #loop through columns in width
-            for c in range(tankw):
-                   r = N.random.uniform()
-                   if r > initPop/(tankw*tankh):
-                        t = tuna()
-                        tuna.append(t)
-                        grid[r][c].tuna=true
+        #loop through columns in width
+        for c in range(tankw):
+                r = N.random.uniform()
+                if r > initPop/(tankw*tankh):
+                    t = Tuna(c,r)
+                    tuna.append(t)
+                    grid[r][c].tuna=True
                         
 
 """
@@ -58,24 +64,41 @@ def growth():
     pass
 
 
-#how many time steps one simulation will last
-# 30 days, 1 time step per hour 30x24=720
-iterations=720
-
-runs=1
-
-phase=0
-
-for i in range(runs):
+def run():
     
-    for j in range(iterations):
-        if(phase==0):
-            init()
-        elif(phase==1):
-            consumption() 
-        elif(phase==2):
-            movement()   
-        elif(phase==3):
-            remove()
-        elif(phase==4):
-            growth()
+    global grid
+    
+    #how many time steps one simulation will last
+    # 30 days, 1 time step per hour 30x24=720
+    iterations=720
+    
+    runs=1
+    
+    phase=0
+    
+    A=animator()
+    
+    for i in range(runs):
+    
+        for j in range(iterations):
+            if(phase==0):
+                init()
+                A.hello()
+                
+                #testing
+                
+            elif(phase==1):
+                consumption() 
+            elif(phase==2):
+                movement()   
+            elif(phase==3):
+                remove()
+            elif(phase==4):
+                growth()
+
+            phase+=1
+            if phase==5:
+                phase=1
+            print phase
+
+run()
