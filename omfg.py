@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 
 class animate:
     
-    
-    def vis(self, grid):
+    plt.ion()
+    def vis(self, grid, cycle):
       
         r_c=N.shape(grid)
 
@@ -18,4 +18,6 @@ class animate:
                 else:    
                         plt.scatter(c,r,color=(0,0,1,1),marker='s')
         
-        plt.show()
+        plt.title("Tuna, cycle #"+str(cycle))
+        plt.draw()
+        plt.pause(.01)

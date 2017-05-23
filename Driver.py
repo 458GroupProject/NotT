@@ -84,11 +84,12 @@ def run():
     global grid
     #how many time steps one simulation will last
     # 30 days, 1 time step per hour 30x24=720
-    iterations=10
+    iterations=100
     
     runs=1
     
     phase=0
+    cycle=0
 
     A=animate()
     
@@ -108,11 +109,12 @@ def run():
                 remove()
             elif(phase==4):
                 growth()
-                A.vis(grid)
+                A.vis(grid,cycle)
 
             phase+=1
             if phase==5:
                 phase=1
+                cycle+=1
 
 
 run()

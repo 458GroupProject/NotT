@@ -72,8 +72,11 @@ class Tuna:
             
             Random moving for now
         """
-        xMax=np.shape(grid)[1]  #max rows
-        yMax=np.shape(grid)[0]  #max cols
+        xMax=np.shape(grid)[1]-1  #max rows
+        yMax=np.shape(grid)[0]-1  #max cols
+        
+        grid[self.y,self.x].tuna=False
+        
         # Make Tuna move a square
         move = [-1,0,1]
         
@@ -94,7 +97,9 @@ class Tuna:
             self.y = 0
         if self.y > yMax:
             self.y = yMax
-
+    
+        grid[self.y,self.x].tuna=True        
+        
     def eat(self, grid):
         """Tuna eats food and gains amount proportional to weight
 
