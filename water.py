@@ -58,13 +58,13 @@ class water(object):
       self.foodFish = fish
       self.temperature = temperature      
 
-    #Method to add food amount to the water agent
+    #Method to update food amount to the water agent
     #Parameter:
-    #   +planktonAdd: amount of plankton food type to be added to the cell (in gram maybe)
-    #   +fishAdd: amount of fish food type to be added to the cell (in gram maybe)
-    def addFood(self, planktonAdd, fishAdd):
-        self.foodPlankton += planktonAdd
-        self.foodFish += fishAdd       
+    #   +planktonAmt: amount of plankton food type to be updated to the cell (in gram maybe)
+    #   +fishAmt: amount of fish food type to be updated to the cell (in gram maybe)
+    def updateFood(self, planktonAmt, fishAmt):
+        self.foodPlankton += planktonAmt
+        self.foodFish += fishAmt       
 
     #Method to change temperature to a new value
     #Parameter:
