@@ -20,7 +20,8 @@ numCorpsesEaten=0
 
 #list of all existing tuna
 tuna=[]                      
-                                             
+
+grid                                           
 
 """
 Initializes the grid with water agents, then adds food and prey according

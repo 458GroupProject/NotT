@@ -1,15 +1,9 @@
 
-import numpy as N
-from imports import*
-from Consts import*
-from water import water
-from Tuna import Tuna
-from Globalvars import*
 
 #tank width and height
-tankw=10.0
+tankw=int(10)
 
-tankh=10.0
+tankh=int(10)
 
 #initial tuna larvae
 initPop=10.0
