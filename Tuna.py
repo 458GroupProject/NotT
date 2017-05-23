@@ -31,6 +31,7 @@ GROWTH_MULTIPLIER = 0.5
 
 
 import numpy as np
+from Consts import*
 
 class Tuna:
     
@@ -68,12 +69,13 @@ class Tuna:
 
         xMax: grid x boundary
         yMax: grid y boundary
-
+            
+            Random moving for now
         """
         xMax=np.shape(grid)[1]  #max rows
         yMax=np.shape(grid)[0]  #max cols
         # Make Tuna move a square
-        move = [-1, 1]
+        move = [-1,0,1]
         
         np.random.shuffle(move)
         self.x += move[0]
@@ -127,6 +129,7 @@ class Tuna:
     def update(self, grid):
         """Updates the weight and size of the Tuna.
         """
+        global STARVE
         if self.energy<STARVE:
             return False
         else:

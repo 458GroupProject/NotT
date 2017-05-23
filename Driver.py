@@ -76,15 +76,15 @@ def remove():
 calls all the tuna grow methods
 """
 def growth():
-    for t in runa:
-        t.grow(grid)
+    for t in tuna:
+        t.grow()
 
 
 def run():
     global grid
     #how many time steps one simulation will last
     # 30 days, 1 time step per hour 30x24=720
-    iterations=720
+    iterations=10
     
     runs=1
     
@@ -98,9 +98,7 @@ def run():
             if(phase==0):
                 grid = init()
                 
-                                #testing visualization of init grid
-                A.vis(grid)
-
+            #testing visualization of init grid
                 
             elif(phase==1):
                 consumption() 
@@ -110,6 +108,7 @@ def run():
                 remove()
             elif(phase==4):
                 growth()
+                A.vis(grid)
 
             phase+=1
             if phase==5:
