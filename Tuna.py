@@ -13,6 +13,8 @@
 #                Changed eat() and update() methods
 # - 23 May 2017: Tien Huynh
 #                Changed move() to randomeMove() and implemented
+#   23 May 2017 5:30-6:30 PM
+#   updated & tested RandomMove, adding useEnergy
 # Notes:
 # - Written for Python 3
 # - See import statements throughout for more information on non-
@@ -23,6 +25,7 @@
 #-----------------------Constant variables------------------------------
 MAX_ENERGY = 1.0
 MIN_ENERGY = 0.0
+STARVE=0.1
 STARVED_THRES = 0.2
 INIT_LENGTH = 3.0
 INIT_ENERGY = 0.5
@@ -30,6 +33,7 @@ PLANKTON_ONLY_SIZE = 6.0
 PLANKTON_ENERGY_MULTIPLIER = 0.5
 FISH_ENERGY_MULTIPLIER = 1.0
 GROWTH_MULTIPLIER = 0.5
+ENERGY_SWIMMING=.1
 
 
 import numpy as np
@@ -64,7 +68,9 @@ class Tuna:
         else:
             raise ValueError
             
-
+    def move(self, movegrid):
+        self.randomMove(movegrid)
+        
     def randomMove(self, okayMoveGrid):
         """Randomly move the tuna to a neighboring cell if available
         Only one tuna is allowed on each cell
@@ -74,11 +80,13 @@ class Tuna:
                         Obtained by calling okayMoveGrid(baseGrid) in Driver.py
 
         """
+
         x = self.x
         y = self.y
         newX = 0   #the next potential x-coordinate
         newY = 0   #the next potential y-coordinate
         successMove = False    #flag to mark a successful move
+        
 
         #check if there is any empty neighboring cell
         if 0 in okayMoveGrid[(y-1):(y+2), (x-1):(x+2)]:
@@ -93,7 +101,7 @@ class Tuna:
                     okayMoveGrid[newY,newX] = 2
                     self.x = newX
                     self.y = newY
-      
+
 
     def eat(self, grid):
         """Tuna eats food and gains amount proportional to weight
@@ -129,12 +137,17 @@ class Tuna:
     def update(self, grid):
         """Updates the weight and size of the Tuna.
         """
+        self.useEnergy()
+        
         if self.energy<STARVE:
             return False
         else:
             return True
 
-    def grow(self):
+    def useEnergy(self):
+        self.energy-=ENERGY_SWIMMING
+    
+    def grow(self,grid):
         # If under STARVED_THRES, Tuna is starving and does not grow
         if self.energy > STARVED_THRES:
             self.length *= (1 + ((self.energy - STARVED_THRES) * GROWTH_MULTIPLIER))

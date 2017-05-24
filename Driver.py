@@ -17,7 +17,7 @@ History:
     + 05/23/2017: Tien
         - Added boundary cells to the grid in the init() function
         - Added okayMoveGrid(baseGrid)
-        
+      Jeremy 5/23 17:45-19:00 integrating random move and animate  
 """
 #-------------------------------------------------------------------------------
 
@@ -47,7 +47,8 @@ def init():
 
     global numAlive, tuna, tankh, tankw
     #creating h by w water grid, with 1 boundary
-    simplelist = [water(0,0,0) for w in xrange((tankh+2) * (tankw+2))]    
+    #starting food values & temp
+    simplelist = [water(10,10,25) for w in xrange((tankh+2) * (tankw+2))]    
     grid=N.array(simplelist)
     grid=N.reshape(grid, (tankh + 2,tankw + 2))    
                 
@@ -99,8 +100,12 @@ def consumption():
 Loops through all tuna agents and calls their move methods
 """
 def movement():
+
     for t in tuna:
-        t.move(grid)
+        moveGrid=okayMoveGrid(grid)
+        grid[t.y,t.x].tuna=False
+        t.move(moveGrid)
+        grid[t.y,t.x].tuna=True
 
 """
 removes tuna who starved to death, or atleast marks them as dead
@@ -113,7 +118,7 @@ def remove():
 calls all the tuna grow methods
 """
 def growth():
-    for t in runa:
+    for t in tuna:
         t.grow(grid)
 
 
@@ -126,6 +131,7 @@ def run():
     runs=1
     
     phase=0
+    cycle=0
 
     A=animate()
     
@@ -136,7 +142,7 @@ def run():
                 grid = init()
                 
                                 #testing visualization of init grid
-                A.vis(grid)
+                #A.vis(grid,cycle)
 
                 
             elif(phase==1):
@@ -151,6 +157,8 @@ def run():
             phase+=1
             if phase==5:
                 phase=1
+                A.vis(grid,cycle)
+                cycle+=1
 
 
 run()
