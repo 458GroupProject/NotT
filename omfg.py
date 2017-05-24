@@ -12,8 +12,8 @@ class animate:
         r_c=N.shape(grid)
         plt.clf()
 
-        for r in range(tankh):
-            for c in range(tankw):
+        for r in range(tankh+2):
+            for c in range(tankw+2):
 
                 w=grid[r,c]
                 alpha=w.foodPlankton/10.0
