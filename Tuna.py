@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #=======================================================================
 #                        General Documentation
 
@@ -15,11 +16,33 @@
 #                Changed move() to randomeMove() and implemented
 #   23 May 2017 5:30-6:30 PM
 #   updated & tested RandomMove, adding useEnergy
+
+
+# Jeremy 24 May 7:30 PM
+# Adding new submethods for the tuna move
+# hunt, forage, schoolingBehavior
+# Will need to change implementation of "eat" method
+# Added variable flags alreadyAte and isHungry and isSchooling
+
 # Notes:
 # - Written for Python 3
 # - See import statements throughout for more information on non-
 #   built-in packages and modules required.
 #
+
+
+
+
+
+"""
+Jeremy 5/24/2017
+"Schooling was first observed at 25–27 days after hatching (26· 2–33· 8 mm, 
+total length) in the Pacific bluefin tuna Thunnus orientalis. At this time, 
+the mode of swimming changed from intermittent sprinting to continuous 
+cruising, and this allowed the fish to adjust to an inertial hydrodynamic 
+environment."
+-http://onlinelibrary.wiley.com/doi/10.1111/j.1095-8649.2010.02598.x/full
+"""
 #=======================================================================
 
 #-----------------------Constant variables------------------------------
@@ -57,6 +80,15 @@ class Tuna:
         self.sightRadius = sightRadius 
         self.energy = energy
         self.state = state
+        
+        #If the tuna ate during hunting phase, skip eating plankton
+        self.alreadyAte=False
+        
+        #If the tuna's energy dictates that it is hungry
+        self.isHungry=False
+        
+        #Flag for when tuna is large enough to follow schooling behavior
+        self.isSchooling=False
 
     def stateInt(self):
         if self.state == "Alive":
@@ -67,10 +99,61 @@ class Tuna:
             return 3
         else:
             raise ValueError
-            
+     
+    """
+    This is the main move method which will be called from the driver, depending
+    on the tuna's state it will then call other methods:
+    If isHungry (energy level below some constant) then it will search for food
+    If not hungry it will do the next default move which is schooling behavior
+    (we can implement this last as it only effects relatively large tuna (25 days old))
+    for now just have it call random move
+    
+    Finally if it's not hungry and not large enough to follow schooling behavior
+    do the default random move
+    """       
     def move(self, movegrid):
-        self.randomMove(movegrid)
+        if self.isHungry:
+            self.lookForFood(moveGrid)
+        elif self.isSchooling:
+            self.schoolMove(moveGrid)
+        else:
+            self.randomMove(movegrid)
+     
+    """
+    If the tuna is hungry (which will probably be all the time) this method
+    will be called from the move method.
+    
+    If large enough it will call the hunt method, otherwise the forage method,
+    which is basically just move to the nearest cell with the highest plankton
+    count (including it's current cell)
+    """   
+    def lookForFood(self,moveGrid):
+        if self.length>PLANKTON_ONLY_SIZE:
+            self.hunt()
+        else:
+            self.forage()
+    
+    """
+    Out of all cells in the Moore neighborhood including it's current cell
+    find the empty cell with the highest plankton count and go there
+    """
+    def forage(self, moveGrid):
+        pass
         
+    """
+    Search all cells within sightRadius for a suitable prey target. If one is
+    identified (pick the largest suitable one) Move to that square and remove
+    the prey item, marking it as cannibalized if it was another tuna, update
+    the energy levels of the predator accordingly and mark it as alreadyAte
+    """
+    def hunt(self):
+       pass 
+    
+    def schoolMove(self, moveGrid):
+        self.randomMove(self, moveGrid)
+
+        
+    
     def randomMove(self, okayMoveGrid):
         """Randomly move the tuna to a neighboring cell if available
         Only one tuna is allowed on each cell
@@ -102,13 +185,28 @@ class Tuna:
                     self.x = newX
                     self.y = newY
 
-
+    
+    """
+    I think we are going to need to change this method a bit so that it only
+    accounts for eating plankton, since tuna cannot occupy the same cell
+    Cannibalization will take place during the move phase as one tuna takes the
+    place of another. 
+    """
     def eat(self, grid):
         """Tuna eats food and gains amount proportional to weight
 
         grid: the enviroment grid that holds the population
 
         """
+        
+        """
+        If the tuna already hunted and ate another tuna during the move phase
+        then skip eating plankton this phase.
+        """
+        if self.alreadyAte:
+            self.alreadyAte=False
+            pass
+            
         # Make Tuna energy gain proportional to weight
         amtPlanktonEat = 0.0
         amtFishEat = 0.0
@@ -139,14 +237,25 @@ class Tuna:
         """
         self.useEnergy()
         
+        """
+        remove tuna that have starved to death
+        """
         if self.energy<STARVE:
             return False
         else:
             return True
-
+    
+    """
+    Tuna need to deplete energy swimming, for now this is constant every turn,
+    We may want to make them use more energy when they move and according to their
+    size, to be implemented later
+    """
     def useEnergy(self):
         self.energy-=ENERGY_SWIMMING
     
+    """
+    Growing algorithm
+    """
     def grow(self,grid):
         # If under STARVED_THRES, Tuna is starving and does not grow
         if self.energy > STARVED_THRES:
