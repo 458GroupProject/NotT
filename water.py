@@ -9,7 +9,15 @@
 #   + "Relationship between the growth and survival of larval Pacific bluefin
 #       tuna, Thunnus orientalis" by Satoh et al.
 #-------------------------------------------------------------------------------
+#Change Log
+#jgn 5/25 adding a reference to the Tuna which is in this square, to make anim-
+#ation easier, added maxPlankton constant
+#-------------------------------------------------------------------------------
 class water(object):
+    
+
+    
+    
     #Plankton: mainly microscopic animals that are more suitable for larvae
     #    without a developed digestive system, but they could still be fed
     #    to more developed individuals; they have lesser nutritional value,
@@ -53,10 +61,15 @@ class water(object):
     #NOTE: might not be necessary if model use a list to keep track of all tuna location
     tuna = False
     
+    #This is a reference to the actual tuna residing in this qater cell, set to 0
+    #when empty
+    resident=0
+    
     def __init__(self, plankton, fish, temperature):
       self.foodPlankton = plankton
       self.foodFish = fish
-      self.temperature = temperature      
+      self.temperature = temperature 
+      self.resident=0     
 
     #Method to update food amount to the water agent
     #Parameter:

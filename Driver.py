@@ -5,6 +5,7 @@ import numpy as N
 
 from Consts import*
 from water import water
+
 from Tuna import Tuna
 from omfg import*
 
@@ -20,15 +21,21 @@ History:
       Jeremy 5/23 17:45-19:00 integrating random move and animate  
 """
 #-------------------------------------------------------------------------------
-
+"""
+simulation constants
+"""
  
 """
 Simulation variables
 """           
 numAlive=0
+numStarved=0
 numCorpses=0
 numEatenAlive=0
 numCorpsesEaten=0
+
+avgLength=0
+avgEnergy=0
 
 #list of all existing tuna
 tuna=[]                      
@@ -45,10 +52,10 @@ will be the liklihookd of a larva starting in a certain cell
 """
 def init():
 
-    global numAlive, tuna, tankh, tankw
+    global numAlive, tuna, tankh, tankw, maxPlankton
     #creating h by w water grid, with 1 boundary
     #starting food values & temp
-    simplelist = [water(10,10,25) for w in xrange((tankh+2) * (tankw+2))]    
+    simplelist = [water(maxPlankton,10,25) for w in xrange((tankh+2) * (tankw+2))]    
     grid=N.array(simplelist)
     grid=N.reshape(grid, (tankh + 2,tankw + 2))    
                 
@@ -66,6 +73,7 @@ def init():
                     t = Tuna(col,row)
                     tuna.append(t)
                     grid[row][col].tuna=True
+                    numAlive+=1
     return grid                  
 
 
@@ -94,7 +102,8 @@ which will also trigger hunting behavior
 """    
 def consumption():
     for t in tuna:
-        t.eat(grid)
+        if not t.eaten:
+            t.eat(grid)
 
 """
 Loops through all tuna agents and calls their move methods
@@ -102,28 +111,52 @@ Loops through all tuna agents and calls their move methods
 def movement():
 
     for t in tuna:
-        moveGrid=okayMoveGrid(grid)
-        grid[t.y,t.x].tuna=False
-        t.move(moveGrid)
-        grid[t.y,t.x].tuna=True
+        if t.eaten:
+            pass
+        else:
+            moveGrid=okayMoveGrid(grid)
+            grid[t.y,t.x].tuna=False
+            grid[t.y,t.x].resident=0
+            t.move(moveGrid,grid)
+            grid[t.y,t.x].tuna=True
+            grid[t.y,t.x].resident=t
 
 """
 removes tuna who starved to death, or atleast marks them as dead
 """  
 def remove():
+    global tuna, numStarved, numAlive, numEatenAlive
     for t in tuna:
-        t.update(grid)
+        if t.eaten:
+            grid[t.y,t.x].tuna=False
+            grid[t.y,t.x].resident=0
+            tuna.remove(t)
+            numEatenAlive+=1
+            numAlive-=1 
+        #removing starving tuna
+        if not t.update(grid):
+            grid[t.y,t.x].tuna=False
+            grid[t.y,t.x].resident=0
+            tuna.remove(t)
+            numStarved+=1
+            numAlive-=1
+            
 
 """
 calls all the tuna grow methods
+Also updates average 
 """
 def growth():
+    global numAlive, avgLength, avgEnergy, numStarved
     for t in tuna:
         t.grow(grid)
-
+        avgLength+=t.length
+        avgEnergy+=t.energy
+    avgLength/=numAlive
+    avgEnergy/=numAlive
 
 def run():
-    global grid
+    global grid, numAlive, avgLength, avgEnergy, numStarved, numEatenAlive
     #how many time steps one simulation will last
     # 30 days, 1 time step per hour 30x24=720
     iterations=720
@@ -133,7 +166,7 @@ def run():
     phase=0
     cycle=0
 
-    A=animate()
+    A=animate(maxPlankton)
     
     for i in range(runs):
     
@@ -157,7 +190,8 @@ def run():
             phase+=1
             if phase==5:
                 phase=1
-                A.vis(grid,cycle)
+                A.vis(grid,cycle,numAlive, avgLength, avgEnergy, numStarved, numEatenAlive)
+                print str(cycle)+" Avg Size: "+str(round(avgLength,1)) + " Avg Energy: "+ str(round(avgEnergy,2))
                 cycle+=1
 
 

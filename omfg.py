@@ -3,12 +3,19 @@ from Consts import*
 import matplotlib.pyplot as plt
 """
 jgn 5/23 added coloring for plankton levels
+5/25 added size changes in tuna, labels with additional info,
+change color of cannibalizing tuna
 """
+
+
 class animate:
+    def __init__(self, mp):
+         self.maxPlankton=mp
     
     plt.ion()
-    def vis(self, grid, cycle):
-      
+    
+    def vis(self, grid, cycle, numAlive, avgLength, avgEnergy, numStarved, numEatenAlive):
+        global maxPlankton
         r_c=N.shape(grid)
         plt.clf()
 
@@ -16,13 +23,25 @@ class animate:
             for c in range(tankw+2):
 
                 w=grid[r,c]
-                alpha=w.foodPlankton/10.0
+                alpha=w.foodPlankton/maxPlankton
+                T=w.resident
+                
+                if T != 0:
+                    if T.alreadyAte:
+                        tuna_color=(1,0,0,1)
+                    else:
+                        tuna_color=(0,0,0,1)
+                
+                plt.scatter(c,r,color=(0,alpha,1-alpha,1),s=100,marker='s')
                 
                 if w.tuna:
-                    plt.scatter(c,r,color=(1,0,0,1),s=400)
-                else:    
-                    plt.scatter(c,r,color=(0,alpha,1-alpha,1),s=400,marker='s')
+                    plt.scatter(c,r,color=tuna_color,s=T.length*2)
+                   
+                    
         
-        plt.title("Tuna, cycle #"+str(cycle))
+        
+        plt.title("Hour "+str(cycle)+":00")
+        plt.xlabel("Tuna Alive: "+str(numAlive)+"  AvgSize: "+str(round(avgLength,1)) + "  AvgEnergy: "+ str(round(avgEnergy,2)))
+        plt.ylabel("numStarved "+ str(numStarved)+"\n" + "numEatenAlive " +str(numEatenAlive))
         plt.draw()
         plt.pause(.01)

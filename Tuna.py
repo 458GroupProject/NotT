@@ -22,8 +22,8 @@
 # Adding new submethods for the tuna move
 # hunt, forage, schoolingBehavior
 # Will need to change implementation of "eat" method
-# Added variable flags alreadyAte and isHungry and isSchooling
-
+# Added variable flags alreadyAte
+# jgn 5.25 added forage and hunt method implementation and VISION
 # Notes:
 # - Written for Python 3
 # - See import statements throughout for more information on non-
@@ -48,18 +48,23 @@ environment."
 #-----------------------Constant variables------------------------------
 MAX_ENERGY = 1.0
 MIN_ENERGY = 0.0
-STARVE=0.1
-STARVED_THRES = 0.2
-INIT_LENGTH = 3.0
-INIT_ENERGY = 0.5
+HUNGRY=-99 #not working yet
+STARVE=0.0
+STARVED_THRES = 0.6    #increased, as tuna grew too fast and starved
+INIT_LENGTH = 3.0       #use mm as base length unit
+INIT_ENERGY = 0.6
 PLANKTON_ONLY_SIZE = 6.0
 PLANKTON_ENERGY_MULTIPLIER = 0.5
 FISH_ENERGY_MULTIPLIER = 1.0
-GROWTH_MULTIPLIER = 0.5
-ENERGY_SWIMMING=.1
+GROWTH_MULTIPLIER = 0.15 #lowered this as tuna were growing too fast, still need to make realistic number jgn 5.25
+ENERGY_SWIMMING=.0001    #as proportion of length
+SCHOOLING_SIZE = 28
+VISION=2 #cells moore neghborhood
+
 
 
 import numpy as np
+from Consts import*
 
 class Tuna:
     
@@ -84,8 +89,9 @@ class Tuna:
         #If the tuna ate during hunting phase, skip eating plankton
         self.alreadyAte=False
         
-        #If the tuna's energy dictates that it is hungry
-        self.isHungry=False
+        #unfortunately it's the end of the line for this little fishy, it's been
+        #eaten :(
+        self.eaten=False
         
         #Flag for when tuna is large enough to follow schooling behavior
         self.isSchooling=False
@@ -111,11 +117,14 @@ class Tuna:
     Finally if it's not hungry and not large enough to follow schooling behavior
     do the default random move
     """       
-    def move(self, movegrid):
-        if self.isHungry:
-            self.lookForFood(moveGrid)
-        elif self.isSchooling:
-            self.schoolMove(moveGrid)
+    def move(self, movegrid, grid):
+        
+        if self.energy<HUNGRY:
+            self.lookForFood(movegrid, grid)
+        
+        elif self.length>SCHOOLING_SIZE:
+            self.randomMove(movegrid)
+        
         else:
             self.randomMove(movegrid)
      
@@ -127,30 +136,97 @@ class Tuna:
     which is basically just move to the nearest cell with the highest plankton
     count (including it's current cell)
     """   
-    def lookForFood(self,moveGrid):
+    def lookForFood(self,moveGrid, grid):
         if self.length>PLANKTON_ONLY_SIZE:
-            self.hunt()
+            self.hunt(moveGrid,grid)
         else:
-            self.forage()
+            self.forage(moveGrid,grid)
     
     """
     Out of all cells in the Moore neighborhood including it's current cell
     find the empty cell with the highest plankton count and go there
     """
-    def forage(self, moveGrid):
-        pass
+    def forage(self, moveGrid, grid):
+        """Randomly move the tuna to a neighboring cell if available that has
+        the most plankton
+        Only one tuna is allowed on each cell
+
+        + okayMoveGrid: the boolean grid that specifies which cell is okay to move
+                        to (0 = unoccupied cell; 1 = boundary cell; 2 = tuna occupied cell)
+                        Obtained by calling okayMoveGrid(baseGrid) in Driver.py
+
+        """
+
+        x = self.x
+        y = self.y
+        newX = 0   #the next potential x-coordinate
+        newY = 0   #the next potential y-coordinate
         
+        #available squares
+        possible=[]
+        mostFood=0
+        
+        #current grid is an option
+        moveGrid[0,0]=0
+        
+        for yy in [-1,0,1]:
+            for xx in [-1,0,1]:
+                if moveGrid[yy,xx]==0 and grid[yy,xx].foodPlankton>mostFood:
+                   newX=xx
+                   newY=yy
+                   mostFood=grid[yy,xx].foodPlankton+ np.random.uniform(0)*.01 
+        self.x=newX
+        self.y=newY
     """
     Search all cells within sightRadius for a suitable prey target. If one is
     identified (pick the largest suitable one) Move to that square and remove
     the prey item, marking it as cannibalized if it was another tuna, update
     the energy levels of the predator accordingly and mark it as alreadyAte
     """
-    def hunt(self):
-       pass 
     
+    def hunt(self, movegrid, grid):
+        """Randomly move the tuna to a neighboring cell if available that has
+        the most plankton
+        Only one tuna is allowed on each cell
+
+        + okayMoveGrid: the boolean grid that specifies which cell is okay to move
+                        to (0 = unoccupied cell; 1 = boundary cell; 2 = tuna occupied cell)
+                        Obtained by calling okayMoveGrid(baseGrid) in Driver.py
+
+        """
+        
+        global VISIBILITY
+        x = self.x
+        y = self.y
+        newX = 0   #the next potential x-coordinate
+        newY = 0   #the next potential y-coordinate
+        
+        #available squares
+        mostFood=0
+        
+        
+        for yy in np.arange(VISION+1):
+            for xx in np.arange(VISION-VISIBILITY+1):
+                if not (grid[yy,xx]).resident==0:
+                    if (grid[yy,xx]).resident.length<self.length:
+                        newX=xx
+                        newY=yy
+                        
+                        grid[newY,newX].resident.eaten=True
+                        amtFishEat = min((MAX_ENERGY - self.energy) / FISH_ENERGY_MULTIPLIER * self.length, grid[self.y, self.x].foodFish)  
+                        self.energy += amtFishEat * FISH_ENERGY_MULTIPLIER / self.length
+                        
+                        self.alreadyAte=True       
+                        self.x=newX
+                        self.y=newY
+                        break
+         
+    
+    """
+    Schooling behavior which is for now, just random movement
+    """
     def schoolMove(self, moveGrid):
-        self.randomMove(self, moveGrid)
+        self.randomMove(moveGrid)
 
         
     
@@ -235,12 +311,15 @@ class Tuna:
     def update(self, grid):
         """Updates the weight and size of the Tuna.
         """
+        
+        #Subtract used energy
         self.useEnergy()
         
         """
         remove tuna that have starved to death
         """
         if self.energy<STARVE:
+            
             return False
         else:
             return True
@@ -251,13 +330,14 @@ class Tuna:
     size, to be implemented later
     """
     def useEnergy(self):
-        self.energy-=ENERGY_SWIMMING
+        self.energy-=(ENERGY_SWIMMING*self.length)
     
     """
     Growing algorithm
+    grow and update values accordingly
+    jgn 5.25, adding random factor to growth so all are not the same size
     """
     def grow(self,grid):
         # If under STARVED_THRES, Tuna is starving and does not grow
         if self.energy > STARVED_THRES:
-            self.length *= (1 + ((self.energy - STARVED_THRES) * GROWTH_MULTIPLIER))
-
+            self.length *= (1 + ((self.energy - STARVED_THRES) * GROWTH_MULTIPLIER)+np.random.uniform(0)*.1)
