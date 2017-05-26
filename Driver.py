@@ -111,7 +111,7 @@ Loops through all tuna agents and calls their move methods
 def movement():
 
     for t in tuna:
-        if t.eaten:
+        if t.eaten or t.alreadyAte:
             pass
         else:
             moveGrid=okayMoveGrid(grid)
@@ -184,6 +184,8 @@ def run():
                 movement()   
             elif(phase==3):
                 remove()
+                if numAlive<=0:
+                    break
             elif(phase==4):
                 growth()
 

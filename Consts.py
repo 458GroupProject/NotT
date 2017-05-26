@@ -9,7 +9,7 @@ tankh=int(20)
 initPop=20.0
 
 #maxPlankton per cell
-maxPlankton=100
+maxPlankton=10
 
 #Starvation death level
 STARVE=0

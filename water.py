@@ -75,9 +75,15 @@ class water(object):
     #Parameter:
     #   +planktonAmt: amount of plankton food type to be updated to the cell (in gram maybe)
     #   +fishAmt: amount of fish food type to be updated to the cell (in gram maybe)
+    #jgn 5.25 updated so that no negative food is allowed in cells
     def updateFood(self, planktonAmt, fishAmt):
         self.foodPlankton += planktonAmt
-        self.foodFish += fishAmt       
+        self.foodFish += fishAmt  
+        
+        if self.foodPlankton<0:
+            self.foodPlankton=0
+        if self.foodFish<0:
+            self.foodFish=0      
 
     #Method to change temperature to a new value
     #Parameter:

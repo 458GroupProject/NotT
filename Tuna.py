@@ -48,18 +48,19 @@ environment."
 #-----------------------Constant variables------------------------------
 MAX_ENERGY = 1.0
 MIN_ENERGY = 0.0
-HUNGRY=-99 #not working yet
+HUNGRY=1.0 #not working yet
 STARVE=0.0
 STARVED_THRES = 0.6    #increased, as tuna grew too fast and starved
 INIT_LENGTH = 3.0       #use mm as base length unit
 INIT_ENERGY = 0.6
-PLANKTON_ONLY_SIZE = 6.0
+PLANKTON_ONLY_SIZE = 7.0
 PLANKTON_ENERGY_MULTIPLIER = 0.5
 FISH_ENERGY_MULTIPLIER = 1.0
 GROWTH_MULTIPLIER = 0.15 #lowered this as tuna were growing too fast, still need to make realistic number jgn 5.25
 ENERGY_SWIMMING=.0001    #as proportion of length
 SCHOOLING_SIZE = 28
 VISION=2 #cells moore neghborhood
+AGGRESSION=.20 #liklihood to attack another tuna
 
 
 
@@ -67,8 +68,8 @@ import numpy as np
 from Consts import*
 
 class Tuna:
-    
-    def __init__(self, xLoc, yLoc, length = INIT_LENGTH, sightRadius=1, energy=INIT_ENERGY, state="Alive"):
+    # jgn 5.25 added random factor to tuna init length for more variability of size
+    def __init__(self, xLoc, yLoc, length = INIT_LENGTH+np.random.uniform(-1,1), sightRadius=1, energy=INIT_ENERGY, state="Alive"):
         """Constructor that makes a Tuna object.
 
         xLoc: gives the x-coordinate also known as Column
@@ -137,7 +138,8 @@ class Tuna:
     count (including it's current cell)
     """   
     def lookForFood(self,moveGrid, grid):
-        if self.length>PLANKTON_ONLY_SIZE:
+        r=np.random.uniform()
+        if self.length>PLANKTON_ONLY_SIZE and AGGRESSION>r: 
             self.hunt(moveGrid,grid)
         else:
             self.forage(moveGrid,grid)
@@ -156,27 +158,30 @@ class Tuna:
                         Obtained by calling okayMoveGrid(baseGrid) in Driver.py
 
         """
-
+        global tankh, tankw
         x = self.x
         y = self.y
-        newX = 0   #the next potential x-coordinate
-        newY = 0   #the next potential y-coordinate
+        newX = x   #the next potential x-coordinate
+        newY = y   #the next potential y-coordinate
         
         #available squares
         possible=[]
         mostFood=0
         
         #current grid is an option
-        moveGrid[0,0]=0
+        moveGrid[x,y]=0
         
         for yy in [-1,0,1]:
             for xx in [-1,0,1]:
-                if moveGrid[yy,xx]==0 and grid[yy,xx].foodPlankton>mostFood:
-                   newX=xx
-                   newY=yy
-                   mostFood=grid[yy,xx].foodPlankton+ np.random.uniform(0)*.01 
+                if not (y+yy<0 or y+yy>tankh or x+xx<0 or x+xx>tankw):
+                    if moveGrid[y+yy,x+xx]==0 and grid[y+yy,x+xx].foodPlankton>mostFood:
+                        newX=x+xx
+                        newY=y+yy
+                        mostFood=grid[y+yy,x+xx].foodPlankton+ np.random.uniform(-.01,.01) 
         self.x=newX
         self.y=newY
+        if mostFood==0:
+            self.randomMove(moveGrid)
     """
     Search all cells within sightRadius for a suitable prey target. If one is
     identified (pick the largest suitable one) Move to that square and remove
@@ -195,7 +200,7 @@ class Tuna:
 
         """
         
-        global VISIBILITY
+        global VISIBILITY, tankh, tankw
         x = self.x
         y = self.y
         newX = 0   #the next potential x-coordinate
@@ -207,19 +212,22 @@ class Tuna:
         
         for yy in np.arange(VISION+1):
             for xx in np.arange(VISION-VISIBILITY+1):
-                if not (grid[yy,xx]).resident==0:
-                    if (grid[yy,xx]).resident.length<self.length:
-                        newX=xx
-                        newY=yy
-                        
-                        grid[newY,newX].resident.eaten=True
-                        amtFishEat = min((MAX_ENERGY - self.energy) / FISH_ENERGY_MULTIPLIER * self.length, grid[self.y, self.x].foodFish)  
-                        self.energy += amtFishEat * FISH_ENERGY_MULTIPLIER / self.length
-                        
-                        self.alreadyAte=True       
-                        self.x=newX
-                        self.y=newY
-                        break
+                if not (y+yy<0 or y+yy>tankh or x+xx<0 or x+xx>tankw):
+                    if not (grid[y+yy,x+xx]).resident==0:
+                        if (grid[y+yy,x+xx]).resident.length<self.length:
+                            print "CANNIBAL!"
+                            newX=x+xx
+                            newY=y+yy
+                            
+                            grid[newY,newX].resident.eaten=True
+                            amtFishEat = min((MAX_ENERGY - self.energy) / FISH_ENERGY_MULTIPLIER * self.length, grid[self.y, self.x].foodFish)  
+                            self.energy += amtFishEat * FISH_ENERGY_MULTIPLIER / self.length
+                            
+                            self.alreadyAte=True       
+                            #for now it stays where it is
+                            #self.x=newX
+                            #self.y=newY
+                            break
          
     
     """
@@ -340,4 +348,4 @@ class Tuna:
     def grow(self,grid):
         # If under STARVED_THRES, Tuna is starving and does not grow
         if self.energy > STARVED_THRES:
-            self.length *= (1 + ((self.energy - STARVED_THRES) * GROWTH_MULTIPLIER)+np.random.uniform(0)*.1)
+            self.length *= (1 + ((self.energy - STARVED_THRES) * GROWTH_MULTIPLIER)+np.random.uniform(-.1,.1))
