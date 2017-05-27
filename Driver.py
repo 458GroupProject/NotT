@@ -19,6 +19,7 @@ History:
         - Added boundary cells to the grid in the init() function
         - Added okayMoveGrid(baseGrid)
       Jeremy 5/23 17:45-19:00 integrating random move and animate  
+      Matt 5/27: added support for data collection of various data
 """
 #-------------------------------------------------------------------------------
 """
@@ -165,11 +166,29 @@ def run():
     
     phase=0
     cycle=0
+    
+    #data for analysis
+    arr_data = N.zeros([runs,7]) # 7 is number of data arrays below
+    arr_numAlive = N.array([],dtype='i')
+    arr_numStarved = N.array([],dtype='i')
+    arr_numCorpses = N.array([],dtype='i')
+    arr_numEatenAlive = N.array([],dtype='i')
+    arr_numCorpsesEaten = N.array([],dtype='i')
+    arr_avgLength = N.array([],dtype='i')
+    arr_avgEnergy = N.array([],dtype='i')
 
     A=animate(maxPlankton)
     
     for i in range(runs):
-    
+        
+        arr_numAlive = N.append(arr_numAlive,numAlive)
+        arr_numStarved = N.append(arr_numStarved,numStarved)
+        arr_numCorpses = N.append(arr_numCorpses,numCorpses)
+        arr_numEatenAlive = N.append(arr_numEatenAlive,numEatenAlive)
+        arr_numCorpsesEaten = N.append(arr_numCorpsesEaten,numCorpsesEaten)
+        arr_avgLength = N.append(arr_avgLength,avgLength)
+        arr_avgEnergy = N.append(arr_avgEnergy,avgEnergy)
+                
         for j in range(iterations):
             if(phase==0):
                 grid = init()
@@ -194,7 +213,21 @@ def run():
                 phase=1
                 A.vis(grid,cycle,numAlive, avgLength, avgEnergy, numStarved, numEatenAlive)
                 print str(cycle)+" Avg Size: "+str(round(avgLength,1)) + " Avg Energy: "+ str(round(avgEnergy,2))
+                arr_numAlive = N.append(arr_numAlive,numAlive)
+                arr_numStarved = N.append(arr_numStarved,numStarved)
+                arr_numCorpses = N.append(arr_numCorpses,numCorpses)
+                arr_numEatenAlive = N.append(arr_numEatenAlive,numEatenAlive)
+                arr_numCorpsesEaten = N.append(arr_numCorpsesEaten,numCorpsesEaten)
+                arr_avgLength = N.append(arr_avgLength,avgLength)
+                arr_avgEnergy = N.append(arr_avgEnergy,avgEnergy)
+                
                 cycle+=1
+                
+            if (j==iterations):
+                A.graph(arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy)
+        
+        arr_data[runs,:] = arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy
+        
 
 
 run()

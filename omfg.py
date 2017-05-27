@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 """
 jgn 5/23 added coloring for plankton levels
 5/25 added size changes in tuna, labels with additional info,
+Matt 5/27: added graph def to use to output/analyze data
 change color of cannibalizing tuna
 """
 
@@ -45,3 +46,6 @@ class animate:
         plt.ylabel("numStarved "+ str(numStarved)+"\n" + "numEatenAlive " +str(numEatenAlive))
         plt.draw()
         plt.pause(.01)
+        
+    def graph(self, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy):
+        return
