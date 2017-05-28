@@ -8,6 +8,7 @@ from water import water
 
 from Tuna import Tuna
 from omfg import*
+from Analysis import*
 
 
 #-------------------------------------------------------------------------------
@@ -168,7 +169,6 @@ def run():
     cycle=0
     
     #data for analysis
-    arr_data = N.zeros([runs,8]) # 8 is number of data arrays below
     arr_iterations = N.array([],dtype='i')
     arr_numAlive = N.array([],dtype='i')
     arr_numStarved = N.array([],dtype='i')
@@ -179,6 +179,7 @@ def run():
     arr_avgEnergy = N.array([],dtype='d')
 
     A=animate(maxPlankton)
+    B=analysis(iterations, runs)
     
     for i in range(runs):
         
@@ -227,11 +228,12 @@ def run():
                 cycle+=1
                 
             if (j==iterations):
-                A.graph(arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy)
+                B.graph(arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy)
         
-        # for multiple runs:
-        arr_data[i,:] = arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy
+        # for data analysis
+        B.collect(arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy)
         
+    B.analyze()    
 
 
 run()
