@@ -168,19 +168,21 @@ def run():
     cycle=0
     
     #data for analysis
-    arr_data = N.zeros([runs,7]) # 7 is number of data arrays below
+    arr_data = N.zeros([runs,8]) # 8 is number of data arrays below
+    arr_iterations = N.array([],dtype='i')
     arr_numAlive = N.array([],dtype='i')
     arr_numStarved = N.array([],dtype='i')
     arr_numCorpses = N.array([],dtype='i')
     arr_numEatenAlive = N.array([],dtype='i')
     arr_numCorpsesEaten = N.array([],dtype='i')
-    arr_avgLength = N.array([],dtype='i')
-    arr_avgEnergy = N.array([],dtype='i')
+    arr_avgLength = N.array([],dtype='d')
+    arr_avgEnergy = N.array([],dtype='d')
 
     A=animate(maxPlankton)
     
     for i in range(runs):
         
+        arr_iterations = N.append(arr_iterations,0)
         arr_numAlive = N.append(arr_numAlive,numAlive)
         arr_numStarved = N.append(arr_numStarved,numStarved)
         arr_numCorpses = N.append(arr_numCorpses,numCorpses)
@@ -213,6 +215,7 @@ def run():
                 phase=1
                 A.vis(grid,cycle,numAlive, avgLength, avgEnergy, numStarved, numEatenAlive)
                 print str(cycle)+" Avg Size: "+str(round(avgLength,1)) + " Avg Energy: "+ str(round(avgEnergy,2))
+                arr_iterations = N.append(arr_iterations, j)
                 arr_numAlive = N.append(arr_numAlive,numAlive)
                 arr_numStarved = N.append(arr_numStarved,numStarved)
                 arr_numCorpses = N.append(arr_numCorpses,numCorpses)
@@ -224,9 +227,10 @@ def run():
                 cycle+=1
                 
             if (j==iterations):
-                A.graph(arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy)
+                A.graph(arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy)
         
-        arr_data[runs,:] = arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy
+        # for multiple runs:
+        arr_data[i,:] = arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy
         
 
 
