@@ -47,5 +47,4 @@ class animate:
         plt.draw()
         plt.pause(.01)
         
-    def graph(self, arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy):
-        return
+   

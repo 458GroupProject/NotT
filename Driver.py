@@ -216,6 +216,7 @@ def run():
                 phase=1
                 A.vis(grid,cycle,numAlive, avgLength, avgEnergy, numStarved, numEatenAlive)
                 print str(cycle)+" Avg Size: "+str(round(avgLength,1)) + " Avg Energy: "+ str(round(avgEnergy,2))
+                
                 arr_iterations = N.append(arr_iterations, j)
                 arr_numAlive = N.append(arr_numAlive,numAlive)
                 arr_numStarved = N.append(arr_numStarved,numStarved)
@@ -226,9 +227,8 @@ def run():
                 arr_avgEnergy = N.append(arr_avgEnergy,avgEnergy)
                 
                 cycle+=1
-                
-            if (j==iterations):
-                B.graph(arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy)
+            
+        B.graph(arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy)
         
         # for data analysis
         B.collect(arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy)
