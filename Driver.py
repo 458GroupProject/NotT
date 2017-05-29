@@ -161,7 +161,7 @@ def run():
     global grid, numAlive, avgLength, avgEnergy, numStarved, numEatenAlive
     #how many time steps one simulation will last
     # 30 days, 1 time step per hour 30x24=720
-    iterations=720
+    iterations=50
     
     runs=1
     
@@ -228,12 +228,22 @@ def run():
                 
                 cycle+=1
             
-        B.graph(arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy)
+        B.graph(i, arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy)
         
         # for data analysis
-        B.collect(arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy)
+        B.collect(i, arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy)
         
-    B.analyze()    
+        #clear arrays for next run
+        arr_iterations = N.array([],dtype='i')
+        arr_numAlive = N.array([],dtype='i')
+        arr_numStarved = N.array([],dtype='i')
+        arr_numCorpses = N.array([],dtype='i')
+        arr_numEatenAlive = N.array([],dtype='i')
+        arr_numCorpsesEaten = N.array([],dtype='i')
+        arr_avgLength = N.array([],dtype='d')
+        arr_avgEnergy = N.array([],dtype='d')
+        
+    #B.analyze()    
 
 
 run()

@@ -10,9 +10,11 @@ class analysis:
         self.iterations = it
         self.runs = rn
         
-    def graph(self, arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy):
-        global current_run
-        plt.figure(current_run)
+    def graph(self, run, arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy):
+        #exec("arr_data_" + str(run) + " = np.zeros([2,2])")
+        
+        
+        plt.figure(run)
         plt.subplot(311)
         plt.ylabel('Number')
         plt.plot(arr_iterations,arr_numAlive,'b.',label='Alive')
@@ -30,9 +32,12 @@ class analysis:
         plt.plot(arr_iterations,arr_avgEnergy)
         plt.show()
         
-    def collect(self, arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy):
-        global current_run
-        current_run = current_run + 1
+    def collect(self, run, arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy):
         
+        
+        if(run==self.runs):
+            analyze()
+        print("collect, run = " + str(run))
+        print("collect, runs = " + str(self.runs))
     def analyze(self):
-        pass
+        print("analyzed")

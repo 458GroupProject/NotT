@@ -16,6 +16,3 @@ STARVE=0
 
 #WaterVisibility (subracted from tuna visual range)
 VISIBILITY=0
-
-#global_run for data graphing
-current_run = 1
