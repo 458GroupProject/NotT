@@ -7,7 +7,7 @@ from Consts import*
 from water import water
 
 from Tuna import Tuna
-from omfg import*
+from Animate import*
 from Analysis import*
 
 
