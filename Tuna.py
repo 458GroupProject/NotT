@@ -50,26 +50,29 @@ MAX_ENERGY = 1.0
 MIN_ENERGY = 0.0
 HUNGRY=1.0 #not working yet
 STARVE=0.0
-STARVED_THRES = 0.6    #increased, as tuna grew too fast and starved
+STARVED_THRES = 0.2    #increased, as tuna grew too fast and starved
 INIT_LENGTH = 3.0       #use mm as base length unit
-INIT_ENERGY = 0.6
-PLANKTON_ONLY_SIZE = 7.0
-PLANKTON_ENERGY_MULTIPLIER = 0.5
-FISH_ENERGY_MULTIPLIER = 1.0
-GROWTH_MULTIPLIER = 0.15 #lowered this as tuna were growing too fast, still need to make realistic number jgn 5.25
-ENERGY_SWIMMING=.0001    #as proportion of length
+INIT_ENERGY = 0.5
+GROWTH_MULTIPLIER_BELOW_7MM = 0.055
+GROWTH_MULTIPLIER_ABOVE_7MM = 0.128
+
+ENERGY_SWIMMING = 0.05   #energy spent for regular swim
+ENERGY_HUNTING = 0.1     #energy spent for hunting
 SCHOOLING_SIZE = 28
 VISION=2 #cells moore neghborhood
 AGGRESSION=.20 #liklihood to attack another tuna
+TEMP_LOW = 22 #lower temperature threshold for appropriate tuna life
+TEMP_HIGH = 28 #higher temperature threshold for appropriate tuna life
+TEMP_MULTIPLIER = 0.1 #temperature growth rate multiplier 
 
 
 
 import numpy as np
-from Consts import*
+from Consts import *
 
 class Tuna:
     # jgn 5.25 added random factor to tuna init length for more variability of size
-    def __init__(self, xLoc, yLoc, length = INIT_LENGTH+np.random.uniform(-1,1), sightRadius=1, energy=INIT_ENERGY, state="Alive"):
+    def __init__(self, xLoc, yLoc, length = INIT_LENGTH+np.random.uniform(-0.5,0.5), sightRadius=1, energy=INIT_ENERGY, state="Alive"):
         """Constructor that makes a Tuna object.
 
         xLoc: gives the x-coordinate also known as Column
@@ -180,6 +183,7 @@ class Tuna:
                         mostFood=grid[y+yy,x+xx].foodPlankton+ np.random.uniform(-.01,.01) 
         self.x=newX
         self.y=newY
+        self.energy -= ENERGY_SWIMMING
         if mostFood==0:
             self.randomMove(moveGrid)
     """
@@ -198,6 +202,8 @@ class Tuna:
                         to (0 = unoccupied cell; 1 = boundary cell; 2 = tuna occupied cell)
                         Obtained by calling okayMoveGrid(baseGrid) in Driver.py
 
+        Tien 05/28/2017: added cannibalism success rate
+
         """
         
         global VISIBILITY, tankh, tankw
@@ -206,28 +212,29 @@ class Tuna:
         newX = 0   #the next potential x-coordinate
         newY = 0   #the next potential y-coordinate
         
-        #available squares
-        mostFood=0
-        
         
         for yy in np.arange(VISION+1):
             for xx in np.arange(VISION-VISIBILITY+1):
                 if not (y+yy<0 or y+yy>tankh or x+xx<0 or x+xx>tankw):
                     if not (grid[y+yy,x+xx]).resident==0:
                         if (grid[y+yy,x+xx]).resident.length<self.length:
-                            print "CANNIBAL!"
-                            newX=x+xx
-                            newY=y+yy
-                            
-                            grid[newY,newX].resident.eaten=True
-                            amtFishEat = min((MAX_ENERGY - self.energy) / FISH_ENERGY_MULTIPLIER * self.length, grid[self.y, self.x].foodFish)  
-                            self.energy += amtFishEat * FISH_ENERGY_MULTIPLIER / self.length
-                            
-                            self.alreadyAte=True       
-                            #for now it stays where it is
-                            #self.x=newX
-                            #self.y=newY
-                            break
+                            #chance of successful cannibalism is based on size difference between hunter & huntee
+                            cannibalSuccess = (self.length / grid[y+yy,x+xx].resident.length) - 1
+                            if np.random.uniform() > cannibalSuccess:
+                                print "CANNIBAL!"
+                                newX=x+xx
+                                newY=y+yy
+                                self.energy -= ENERGY_HUNTING
+                                
+                                grid[newY,newX].resident.eaten=True
+                                amtFishEat = min((MAX_ENERGY - self.energy) / FISH_ENERGY_MULTIPLIER * self.length, grid[newY, newX].resident.length)  
+                                self.energy += amtFishEat * FISH_ENERGY_MULTIPLIER / self.length
+                                
+                                self.alreadyAte=True       
+                                #for now it stays where it is
+                                #self.x=newX
+                                #self.y=newY
+                                break
          
     
     """
@@ -245,6 +252,8 @@ class Tuna:
         + okayMoveGrid: the boolean grid that specifies which cell is okay to move
                         to (0 = unoccupied cell; 1 = boundary cell; 2 = tuna occupied cell)
                         Obtained by calling okayMoveGrid(baseGrid) in Driver.py
+
+        Tien 05/28/2017: add energy usage for random swim
 
         """
 
@@ -268,6 +277,7 @@ class Tuna:
                     okayMoveGrid[newY,newX] = 2
                     self.x = newX
                     self.y = newY
+                    self.energy -= ENERGY_SWIMMING
 
     
     """
@@ -319,9 +329,9 @@ class Tuna:
     def update(self, grid):
         """Updates the weight and size of the Tuna.
         """
-        
-        #Subtract used energy
-        self.useEnergy()
+        #
+        ##Subtract used energy
+        #self.useEnergy()
         
         """
         remove tuna that have starved to death
@@ -332,20 +342,36 @@ class Tuna:
         else:
             return True
     
-    """
-    Tuna need to deplete energy swimming, for now this is constant every turn,
-    We may want to make them use more energy when they move and according to their
-    size, to be implemented later
-    """
-    def useEnergy(self):
-        self.energy-=(ENERGY_SWIMMING*self.length)
+    #"""
+    #Tuna need to deplete energy swimming, for now this is constant every turn,
+    #We may want to make them use more energy when they move and according to their
+    #size, to be implemented later
+    #"""
+    #def useEnergy(self):
+    #    self.energy-=(ENERGY_SWIMMING*self.length)
     
     """
     Growing algorithm
     grow and update values accordingly
     jgn 5.25, adding random factor to growth so all are not the same size
+    Tien 05/28/2017: add temperature growth multiplier and size-dependent variable growth rate
     """
     def grow(self,grid):
         # If under STARVED_THRES, Tuna is starving and does not grow
+        previousLength = self.length
+        tempGrowthRate = 1.0
         if self.energy > STARVED_THRES:
-            self.length *= (1 + ((self.energy - STARVED_THRES) * GROWTH_MULTIPLIER)+np.random.uniform(-.1,.1))
+            #determine temperature growth multiplier, with 22 Celsius as low, 28 Celsius as high
+            #temperature above or below is range is not suitable for tuna, each 1 degree increase raises
+            #growth rate by TEMP_MULTIPLIER 
+            if grid[self.y, self.x].temperature >= TEMP_LOW and grid[self.y, self.x].temperature <= TEMP_HIGH:
+                tempGrowthRate += ((grid[self.y, self.x].temperature % TEMP_LOW) * TEMP_MULTIPLIER)
+            
+            #growth rate varies based on size, below 7mm digestive system is not developed enough to eat fish-based food, hence
+            # lower rate        
+            if self.length < PLANKTON_ONLY_SIZE:
+                self.length *= (1 + (self.energy * GROWTH_MULTIPLIER_BELOW_7MM) * tempGrowthRate * np.random.uniform(0.95,1.05))
+            else:
+                self.length *= (1 + (self.energy * GROWTH_MULTIPLIER_ABOVE_7MM) * tempGrowthRate * np.random.uniform(0.95,1.05))
+            #new energy value after growth is relative to the growth in size
+            self.energy = previousLength / self.length

@@ -48,14 +48,13 @@ class animate:
         fpsClock = pygame.time.Clock()
         fpsClock.tick(60)
 
-        global maxPlankton
         r_c=N.shape(grid)
 
-        for r in range(tankh+2):
-            for c in range(tankw+2):
+        for r in range(1, tankh+1):
+            for c in range(1, tankw+1):
 
                 w=grid[r,c]
-                alpha=w.foodPlankton/maxPlankton
+                alpha=(w.foodPlankton * PLANKTON_ENERGY_MULTIPLIER + w.foodFish * FISH_ENERGY_MULTIPLIER)/self.maxPlankton
                 T=w.resident
 
                 pygame.gfxdraw.box(displaySim, pygame.Rect(r, c, 1, 1), (0, int(255 * alpha), 255 - int(alpha * 255), 200))

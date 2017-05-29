@@ -50,7 +50,7 @@ class water(object):
     #Preferred temperature range for tune larvae is 25 to 30 Celsius.
     #Temperature significantly affects growth rate; higher temperature
     #    result in faster growth rate.
-    #22 Celsius could be used as starting temperature for analysis, up to 30 Celsius.
+    #22 Celsius could be used as starting temperature for analysis, up to 28 Celsius.
     #Temperature’s correlation to growth rate could be inferred from Reglero model.
     #
     #NOTE: growth rate increases by ~15% for each increase of 1 Celsius degree
@@ -80,10 +80,10 @@ class water(object):
         self.foodPlankton += planktonAmt
         self.foodFish += fishAmt  
         
-        if self.foodPlankton<0:
-            self.foodPlankton=0
-        if self.foodFish<0:
-            self.foodFish=0      
+        #if self.foodPlankton<0:
+        #    self.foodPlankton=0
+        #if self.foodFish<0:
+        #    self.foodFish=0      
 
     #Method to change temperature to a new value
     #Parameter:
