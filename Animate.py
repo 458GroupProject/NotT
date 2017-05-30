@@ -133,19 +133,19 @@ class animate:
             zero2="0"
         else:
             zero2=""
-        
+            
         labelvh=myfont.render("Trial # "+str(self.trial)+" Model Variables:", 1, BLACK)
         labelh=myfont.render("Day:Hour ", 1, BLACK)
-        label = myfont.render(zero2+str(cycle/24)+":"+zero+str(cycle%24)+":00", 1, BLACK)
-        label2 = myfont.render("Feed #"+str(cycle/feedInterval), 1, BLACK)
+        label = myfont.render(zero2+str(round(cycle/24, 2))+":"+zero+str(round(cycle%24, 2))+":00", 1, BLACK)
+        label2 = myfont.render("Feed #"+str(round(cycle/feedInterval, 2)), 1, BLACK)
         label3 = myfont.render("avg Length: "+str(round(avgLength,2))+" mm", 1, BLACK)
         label4 = myfont.render("avg Energy:"+str(round(avgEnergy,2)), 1,BLACK)
         label6 = myfont.render("num Alive: "+str(numAlive), 1, BLACK)
         label7 = myfont.render("num Starved to Death: "+str(numStarved), 1, BLACK)
         label8 = myfont.render("num Eaten Alive: " + str(numEatenAlive), 1, BLACK)
         
-        label9=myfont.render("Red dot=Tuna |  Greener square=more food" , 1, BLACK)
-        label10=myfont.render("Bluer square=less food | White dot flash= Cannibal Tuna instance", 1, BLACK)
+        label9=myfont.render("Red dot = Tuna  |  Greener square = more food" , 1, BLACK)
+        label10=myfont.render("Bluer square = less food  | White dot flash = Cannibal Tuna instance", 1, BLACK)
         
         label10b=myfont.render("Model Constants:", 1, RED)
         #calculating volume:
