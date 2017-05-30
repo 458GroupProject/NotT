@@ -34,21 +34,21 @@ simulation constants
 """
 Simulation variables
 """           
-numAlive=0
-numStarved=0
-numCorpses=0
-numEatenAlive=0
-numCorpsesEaten=0
+numAlive = 0
+numStarved = 0
+numCorpses = 0
+numEatenAlive = 0
+numCorpsesEaten = 0
 
-avgLength=0.0
-avgEnergy=0.0
+avgLength = 0.0
+avgEnergy = 0.0
 totalLength = 0.0
 totalEnergy = 0.0
 
 #list of all existing tuna
-tuna=[]                      
+tuna = []                      
 
-grid=0                                          
+grid = 0                                          
 
 """
 Initializes the grid with water agents, then adds food and prey according
@@ -63,7 +63,7 @@ def init():
     global numAlive, tuna, tankh, tankw
     #creating h by w water grid, with 1 boundary
     #randomly assign food value for each water cell up to a maximum value
-    simplelist = [water(N.random.uniform(0.0, maxInitPlankton), 0.0, initTemperature) for w in xrange((tankh+2) * (tankw+2))]    
+    simplelist = [water(N.random.uniform(0.0, maxInitPlankton), 0.0, initTemperature) for w in xrange((tankh + 2) * (tankw + 2))]    
     grid=N.array(simplelist)
     grid=N.reshape(grid, (tankh + 2,tankw + 2))    
                 
@@ -73,16 +73,16 @@ def init():
         for col in range(tankw + 2):
             #update the food to -1 to mark boundary cells
             if row == 0 or row == tankh + 1 or col == 0 or col == tankw + 1:
-                grid[row][col].updateFood(-1,-1)
+                grid[row][col].updateFood(-1, -1)
             #randomly assign tuna
             else:
                 rand = N.random.uniform()
-                if rand < (float(initPop)/(tankw*tankh)):
-                    t = Tuna(col,row)
+                if rand < (float(initPop) / (tankw * tankh)):
+                    t = Tuna(col, row)
                     tuna.append(t)
-                    grid[row][col].tuna=True
+                    grid[row][col].tuna = True
                     grid[row][col].resident = t
-                    numAlive+=1
+                    numAlive += 1
     return grid                  
 
 
@@ -95,10 +95,10 @@ boundary cells (0 = unoccupied cell; 1 = boundary cell; 2 = tuna occupied cell)
 def okayMoveGrid(baseGrid):
     moveGrid = N.zeros(baseGrid.shape, dtype = int)
     #mark boundary cells
-    moveGrid[:,0] = 1
-    moveGrid[:,-1] = 1
-    moveGrid[0,:] = 1
-    moveGrid[-1,:] = 1
+    moveGrid[:, 0] = 1
+    moveGrid[:, -1] = 1
+    moveGrid[0, :] = 1
+    moveGrid[-1, :] = 1
     #mark tuna occupied cells
     for i in tuna:
         moveGrid[i.y, i.x] = 2
@@ -124,11 +124,11 @@ def movement():
             pass
         else:
             moveGrid=okayMoveGrid(grid)
-            grid[t.y,t.x].tuna=False
-            grid[t.y,t.x].resident=0
+            grid[t.y, t.x].tuna = False
+            grid[t.y, t.x].resident = 0
             t.move(moveGrid,grid)
-            grid[t.y,t.x].tuna=True
-            grid[t.y,t.x].resident=t
+            grid[t.y, t.x].tuna = True
+            grid[t.y, t.x].resident = t
 
 """
 removes tuna who starved to death, or atleast marks them as dead
@@ -137,18 +137,18 @@ def remove():
     global tuna, numStarved, numAlive, numEatenAlive
     for t in tuna:
         if t.eaten:
-            grid[t.y,t.x].tuna=False
-            grid[t.y,t.x].resident=0
+            grid[t.y, t.x].tuna = False
+            grid[t.y, t.x].resident = 0
             tuna.remove(t)
-            numEatenAlive+=1
-            numAlive-=1 
+            numEatenAlive += 1
+            numAlive -= 1 
         #removing starving tuna
         elif not t.update(grid):
-            grid[t.y,t.x].tuna=False
-            grid[t.y,t.x].resident=0
+            grid[t.y, t.x].tuna = False
+            grid[t.y, t.x].resident = 0
             tuna.remove(t)
-            numStarved+=1
-            numAlive-=1
+            numStarved += 1
+            numAlive -= 1
             
 
 """
@@ -161,8 +161,8 @@ def growth(growthInterval):
     totalEnergy = 0.0
     for t in tuna:
         t.grow(grid, growthInterval)
-        totalLength+=t.length
-        totalEnergy+=t.energy
+        totalLength += t.length
+        totalEnergy += t.energy
     avgLength = totalLength / numAlive
     avgEnergy = totalEnergy / numAlive
 
@@ -195,23 +195,23 @@ def run(iterations, feedInterval, growthInterval, fishFoodRatio, run, animation,
         tuna = []    #list to hold tuna for each simulation run
        
         #data for analysis
-        arr_iterations = N.array([],dtype='i')
-        arr_numAlive = N.array([],dtype='i')
-        arr_numStarved = N.array([],dtype='i')
-        arr_numCorpses = N.array([],dtype='i')
-        arr_numEatenAlive = N.array([],dtype='i')
-        arr_numCorpsesEaten = N.array([],dtype='i')
-        arr_avgLength = N.array([],dtype='d')
-        arr_avgEnergy = N.array([],dtype='d')
+        arr_iterations = N.array([], dtype='i')
+        arr_numAlive = N.array([], dtype='i')
+        arr_numStarved = N.array([], dtype='i')
+        arr_numCorpses = N.array([], dtype='i')
+        arr_numEatenAlive = N.array([], dtype='i')
+        arr_numCorpsesEaten = N.array([], dtype='i')
+        arr_avgLength = N.array([], dtype='d')
+        arr_avgEnergy = N.array([], dtype='d')
 
         arr_iterations = N.append(arr_iterations,0)
-        arr_numAlive = N.append(arr_numAlive,numAlive)
-        arr_numStarved = N.append(arr_numStarved,numStarved)
-        arr_numCorpses = N.append(arr_numCorpses,numCorpses)
-        arr_numEatenAlive = N.append(arr_numEatenAlive,numEatenAlive)
-        arr_numCorpsesEaten = N.append(arr_numCorpsesEaten,numCorpsesEaten)
-        arr_avgLength = N.append(arr_avgLength,avgLength)
-        arr_avgEnergy = N.append(arr_avgEnergy,avgEnergy)
+        arr_numAlive = N.append(arr_numAlive, numAlive)
+        arr_numStarved = N.append(arr_numStarved, numStarved)
+        arr_numCorpses = N.append(arr_numCorpses, numCorpses)
+        arr_numEatenAlive = N.append(arr_numEatenAlive, numEatenAlive)
+        arr_numCorpsesEaten = N.append(arr_numCorpsesEaten, numCorpsesEaten)
+        arr_avgLength = N.append(arr_avgLength, avgLength)
+        arr_avgEnergy = N.append(arr_avgEnergy, avgEnergy)
                 
         for j in range(1, iterations + 1):
             if(phase==0):
@@ -220,21 +220,21 @@ def run(iterations, feedInterval, growthInterval, fishFoodRatio, run, animation,
                 totalLength = 0.0
                 totalEnergy = 0.0
                 for t in tuna:
-                    totalLength+=t.length
-                    totalEnergy+=t.energy        
+                    totalLength += t.length
+                    totalEnergy += t.energy        
                 avgLength = totalLength / numAlive
                 avgEnergy = totalEnergy / numAlive
                                 #testing visualization of init grid
                 #A.vis(grid,cycle)
 
                 
-            elif(phase==1):
+            elif(phase == 1):
                 consumption() 
-            elif(phase==2):
+            elif(phase == 2):
                 movement()   
-            elif(phase==3):
+            elif(phase == 3):
                 remove()
-                if numAlive<=0:
+                if numAlive <= 0:
                     break
 
             #update larvae growth at the appropriate interval set by user
@@ -268,25 +268,25 @@ def run(iterations, feedInterval, growthInterval, fishFoodRatio, run, animation,
                         #randomly add food, but only up to the maximum amount of food value each water cell can hold based on the value calculated above in growth interval
                         grid[row,col].updateFood(min(N.random.uniform(0, addedPlankton), (maxPlankton - grid[row,col].foodPlankton)), min(N.random.uniform(0, addedFish), (maxFish - grid[row,col].foodFish)))            
                 
-            phase+=1
+            phase += 1
             
-            if phase==4:
-                phase=1
+            if phase == 4:
+                phase = 1
                 
             if animation:
-                A=animate(maxFood,trial)
+                A = animate(maxFood,trial)
                 A.vis(grid,cycle,numAlive, avgLength, avgEnergy, numStarved, numEatenAlive, feedInterval,initTemperature,initPop,VISIBILITY)
 
            # print str(cycle)+" Avg Size: "+str(round(avgLength,1)) + " Avg Energy: "+ str(round(avgEnergy,2)) + " Alive: " + str(numAlive)
             
             arr_iterations = N.append(arr_iterations, j)
-            arr_numAlive = N.append(arr_numAlive,numAlive)
-            arr_numStarved = N.append(arr_numStarved,numStarved)
-            arr_numCorpses = N.append(arr_numCorpses,numCorpses)
-            arr_numEatenAlive = N.append(arr_numEatenAlive,numEatenAlive)
-            arr_numCorpsesEaten = N.append(arr_numCorpsesEaten,numCorpsesEaten)
-            arr_avgLength = N.append(arr_avgLength,avgLength)
-            arr_avgEnergy = N.append(arr_avgEnergy,avgEnergy)
+            arr_numAlive = N.append(arr_numAlive, numAlive)
+            arr_numStarved = N.append(arr_numStarved, numStarved)
+            arr_numCorpses = N.append(arr_numCorpses, numCorpses)
+            arr_numEatenAlive = N.append(arr_numEatenAlive, numEatenAlive)
+            arr_numCorpsesEaten = N.append(arr_numCorpsesEaten, numCorpsesEaten)
+            arr_avgLength = N.append(arr_avgLength, avgLength)
+            arr_avgEnergy = N.append(arr_avgEnergy, avgEnergy)
             
             cycle+=1
   
@@ -312,12 +312,12 @@ initdensity=[]
 avglength=[]
 
 #changing initPop by steps of 100, up to 1600, completely full grid
-for i in range((tankw*tankh)/100):
+for i in range((tankw * tankh) / 100):
     global initPop, tankw, tankh, tile_width
-    initPop=100*(i+1)
+    initPop = 100 * (i + 1)
     print initPop
-    initdensity.append(initPop/(tankw*tankh*tile_width*tile_width*tile_width/1000000.0))
-    #test 720 time steps, feed every 12 steps, grow every 24 steps, 50:50 fish:plankton mix,10 runs to average data)
+    initdensity.append(initPop / (tankw * tankh * tile_width * tile_width * tile_width / 1000000.0))
+    #test 720 time steps, feed every 12 steps, grow every 24 steps, 50:50 fish:plankton mix, 10 runs to average data)
     data=run(720, 12, 24, .5, 1, False, i)
     numliving.append(data[0])
     avglength.append(data[3])
@@ -337,16 +337,16 @@ plt.show()
     
         
 #list of data generated avg num living at 30 days
-numliving=[]
+numliving = []
 #list of initial population densities
-inittemps=[]
+inittemps = []
 #list of final average lengths
-avglength=[]
+avglength = []
 
 #changing initPop by steps of 100, up to 1600, completely full grid
 for i in range(12):
     global initPop, tankw, tankh, tile_width
-    initTemperature=22+(i*.5)
+    initTemperature = 22 + (i * 0.5)
     print initTemperature
     inittemps.append(initTemperature)
     #test 720 time steps, feed every 12 steps, grow every 24 steps, 50:50 fish:plankton mix,10 runs to average data)
