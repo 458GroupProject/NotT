@@ -52,8 +52,8 @@ STARVED_THRES = 0.4    #increased, as tuna grew too fast and starved
 STARVED_PROB = 0.5      #probability for a starving larvae to die
 INIT_LENGTH = 2.794       #use mm as base length unit
 INIT_ENERGY = 0.5
-GROWTH_MULTIPLIER_BELOW_7MM = 0.055
-GROWTH_MULTIPLIER_ABOVE_7MM = 0.128
+GROWTH_MULTIPLIER_BELOW_7MM = 0.210
+GROWTH_MULTIPLIER_ABOVE_7MM = 0.410
 
 ENERGY_SWIMMING = 0.075   #energy spent for regular swim
 ENERGY_HUNTING = 0.125     #energy spent for hunting
@@ -329,7 +329,7 @@ class Tuna:
             #temperature above or below is range is not suitable for tuna, each 1 degree increase raises
             #growth rate by TEMP_MULTIPLIER 
             if grid[self.y, self.x].temperature >= TEMP_LOW and grid[self.y, self.x].temperature <= TEMP_HIGH:
-                tempGrowthRate += ((grid[self.y, self.x].temperature % TEMP_LOW) * TEMP_MULTIPLIER)
+                tempGrowthRate *= ((grid[self.y, self.x].temperature % TEMP_LOW) * TEMP_MULTIPLIER)
             
             #growth rate varies based on size, below 7mm digestive system is not developed enough to eat fish-based food, hence
             # lower rate        
