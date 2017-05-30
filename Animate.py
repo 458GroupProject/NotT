@@ -23,7 +23,7 @@ add borders
 #Special lines for centering pygame window
 import pygame, os 
 
-position = 50, 50
+position = 10, 10
 os.environ['SDL_VIDEO_WINDOW_POS'] = str(position[0]) + "," + str(position[1])
 
 class animate:
@@ -143,7 +143,8 @@ class animate:
         label7 = myfont.render("num Starved to Death: "+str(numStarved), 1, BLACK)
         label8 = myfont.render("num Eaten Alive: " + str(numEatenAlive), 1, BLACK)
         
-        label9=myfont.render("Red dot=Tuna |  Greener square=more food  |  Bluer square=less food | White dot flash= Cannibal Tuna instance", 1, BLACK)
+        label9=myfont.render("Red dot=Tuna |  Greener square=more food" , 1, BLACK)
+        label10=myfont.render("Bluer square=less food | White dot flash= Cannibal Tuna instance", 1, BLACK)
         
         displaySim.blit(labelh, (tankw*win+195, 80))
         displaySim.blit(label, (tankw*win+200, 100))
@@ -155,6 +156,7 @@ class animate:
         displaySim.blit(label7, (tankw*win+200, 350))
         displaySim.blit(label8, (tankw*win+200, 400))
         displaySim.blit(label9, (100, tankh*win+50))
+        displaySim.blit(label10, (100, tankh*win+100))
         
         pygame.display.update()
 
