@@ -50,7 +50,7 @@ MAX_ENERGY = 1.0
 MIN_ENERGY = 0.0
 STARVED_THRES = 0.4    #increased, as tuna grew too fast and starved
 STARVED_PROB = 0.5      #probability for a starving larvae to die
-INIT_LENGTH = 3.0       #use mm as base length unit
+INIT_LENGTH = 2.794       #use mm as base length unit
 INIT_ENERGY = 0.5
 GROWTH_MULTIPLIER_BELOW_7MM = 0.055
 GROWTH_MULTIPLIER_ABOVE_7MM = 0.128
@@ -209,7 +209,7 @@ class Tuna:
                                 #self.x=newX
                                 #self.y=newY
                                 break
-        
+
     
     def randomMove(self, okayMoveGrid):
         """Randomly move the tuna to a neighboring cell if available
@@ -323,8 +323,8 @@ class Tuna:
         #Assumption: every time step is one hour
         intervalMultiplier = growthInterval / HOUR_PER_DAY
         # If under STARVED_THRES, Tuna is starving and does not grow
-        previousLength = self.length
         tempGrowthRate = 1.0
+        previousLength = self.length
         if self.energy > STARVED_THRES:
             #determine temperature growth multiplier, with 22 Celsius as low, 28 Celsius as high
             #temperature above or below is range is not suitable for tuna, each 1 degree increase raises
