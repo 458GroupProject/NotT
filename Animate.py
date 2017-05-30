@@ -20,6 +20,11 @@ jgn 5/29 making display larger, making plankton squares visble, tuna increase in
 add borders
 """
 
+#Special lines for centering pygame window
+import pygame, os 
+
+position = 50, 50
+os.environ['SDL_VIDEO_WINDOW_POS'] = str(position[0]) + "," + str(position[1])
 
 class animate:
     def __init__(self, mp):
@@ -42,18 +47,20 @@ class animate:
 
         # Create window
         #window size multiplier
-        win=10
-        displaySim = pygame.display.set_mode(((tankw+4)*win*2, (tankh+4)*win))
-        displaySim.fill(BLUE)
+        win=12
+        displaySim = pygame.display.set_mode(((tankw+2)*win*2, (tankh+2)*win+150))
+        displaySim.fill(WHITE)
         pygame.display.set_caption("Tuna Fishery")
         
-        self.createBorders(displaySim, BLACK)
+        #dont need this
+        #self.createBorders(displaySim, BLACK)
         
         # Set running fps
         fpsClock = pygame.time.Clock()
         fpsClock.tick(60)
 
         r_c=N.shape(grid)
+        
         #draw borders black
         pygame.draw.rect(displaySim, BLACK, pygame.Rect(0, 0, (tankw+2)*win, (tankh+2)*win))
         
@@ -114,7 +121,7 @@ class animate:
                     pygame.draw.circle(displaySim, color, (r*win+int(.5*win), c*win+int(.5*win)), size, size)
         
         
-        myfont = pygame.font.SysFont("monospace", 15)
+        myfont = pygame.font.SysFont("arial", 25)
 
         # render text
         if cycle%24<10:
@@ -126,14 +133,16 @@ class animate:
             zero2="0"
         else:
             zero2=""
-        labelh=myfont.render("Day:Hour ", 1, (255,255,0))
-        label = myfont.render(zero2+str(cycle/24)+":"+zero+str(cycle%24)+":00", 1, (255,255,0))
-        label2 = myfont.render("Feed #"+str(cycle/feedInterval), 1, (255,255,0))
-        label3 = myfont.render("avg Length: "+str(round(avgLength,2))+" mm", 1, (255,255,0))
-        label4 = myfont.render("avg Energy:"+str(avgEnergy), 1, (255,255,0))
-        label6 = myfont.render("num Alive: "+str(numAlive), 1, (255,255,0))
-        label7 = myfont.render("num Starved to Death: "+str(numStarved), 1, (255,255,0))
-        label8 = myfont.render("num Eaten Alive: " + str(numEatenAlive), 1, (255,255,0))
+        labelh=myfont.render("Day:Hour ", 1, BLACK)
+        label = myfont.render(zero2+str(cycle/24)+":"+zero+str(cycle%24)+":00", 1, BLACK)
+        label2 = myfont.render("Feed #"+str(cycle/feedInterval), 1, BLACK)
+        label3 = myfont.render("avg Length: "+str(round(avgLength,2))+" mm", 1, BLACK)
+        label4 = myfont.render("avg Energy:"+str(round(avgEnergy,2)), 1,BLACK)
+        label6 = myfont.render("num Alive: "+str(numAlive), 1, BLACK)
+        label7 = myfont.render("num Starved to Death: "+str(numStarved), 1, BLACK)
+        label8 = myfont.render("num Eaten Alive: " + str(numEatenAlive), 1, BLACK)
+        
+        label9=myfont.render("red dot=tuna, greener square=more food, bluersquare=less food, WhiteDot= Cannibal Tuna", 1, BLACK)
         
         displaySim.blit(labelh, (tankw*win+195, 80))
         displaySim.blit(label, (tankw*win+200, 100))
@@ -144,6 +153,7 @@ class animate:
         displaySim.blit(label6, (tankw*win+200, 300))
         displaySim.blit(label7, (tankw*win+200, 350))
         displaySim.blit(label8, (tankw*win+200, 400))
+        displaySim.blit(label9, (100, tankh*win+50))
         
         pygame.display.update()
 
