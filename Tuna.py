@@ -30,10 +30,6 @@
 #   built-in packages and modules required.
 #
 
-
-
-
-
 """
 Jeremy 5/24/2017
 "Schooling was first observed at 25–27 days after hatching (26· 2–33· 8 mm, 
@@ -52,7 +48,7 @@ STARVED_THRES = 0.4    #increased, as tuna grew too fast and starved
 STARVED_PROB = 0.5      #probability for a starving larvae to die
 INIT_LENGTH = 2.794       #use mm as base length unit
 INIT_ENERGY = 0.5
-GROWTH_MULTIPLIER_BELOW_7MM = 0.05
+GROWTH_MULTIPLIER_BELOW_7MM = 0.05 
 GROWTH_MULTIPLIER_ABOVE_7MM = 0.09
 
 ENERGY_SWIMMING = 0.075   #energy spent for regular swim
@@ -74,8 +70,7 @@ class Tuna:
 
         xLoc: gives the x-coordinate also known as Column
         yLoc: gives the y-coordinate also known as Row
-        weight: gives the weight
-        size: gives the size
+        length: Tuna length, assigned fixed length + random uniform amount
         sightRadius: gives the amount of squares the Tuna can see
         energy: gives the energy level of Tuna, based off of food eaten
 
@@ -101,7 +96,6 @@ class Tuna:
     If not hungry it will do the default random move
     """       
     def move(self, movegrid, grid):
-        
         if self.energy<MAX_ENERGY:
             self.lookForFood(movegrid, grid)
         else:
@@ -117,6 +111,7 @@ class Tuna:
     """   
     def lookForFood(self,moveGrid, grid):
         r=np.random.uniform()
+        
         if self.length>PLANKTON_ONLY_SIZE and AGGRESSION>r: 
             self.hunt(moveGrid,grid)
         else:
@@ -146,19 +141,19 @@ class Tuna:
         mostFood=0
         
         #current grid is an option
-        moveGrid[x,y]=0
+        moveGrid[x, y]=0
         
-        for yy in [-1,0,1]:
-            for xx in [-1,0,1]:
-                if not (y+yy<0 or y+yy>tankh or x+xx<0 or x+xx>tankw):
-                    if moveGrid[y+yy,x+xx]==0 and grid[y+yy,x+xx].foodPlankton>mostFood:
-                        newX=x+xx
-                        newY=y+yy
-                        mostFood=grid[y+yy,x+xx].foodPlankton+ np.random.uniform(-.01,.01) 
-        self.x=newX
-        self.y=newY
+        for yy in [-1, 0, 1]:
+            for xx in [-1, 0, 1]:
+                if not (y + yy < 0 or y + yy>tankh or x + xx < 0 or x + xx > tankw):
+                    if moveGrid[y + yy,x + xx]==0 and grid[y + yy, x + xx].foodPlankton > mostFood:
+                        newX = x + xx
+                        newY = y + yy
+                        mostFood = grid[y + yy, x + xx].foodPlankton + np.random.uniform(-0.01, 0.01) 
+        self.x = newX
+        self.y = newY
         self.energy -= ENERGY_SWIMMING
-        if mostFood==0:
+        if mostFood == 0:
             self.randomMove(moveGrid)
     """
     Search all cells within sightRadius for a suitable prey target. If one is
@@ -189,17 +184,17 @@ class Tuna:
         
         for yy in np.arange(VISION-VISIBILITY+1):
             for xx in np.arange(VISION-VISIBILITY+1):
-                if not (y+yy<0 or y+yy>tankh or x+xx<0 or x+xx>tankw):
-                    if not (grid[y+yy,x+xx]).resident==0:
-                        if (grid[y+yy,x+xx]).resident.length<self.length:
+                if not (y + yy < 0 or y + yy > tankh or x + xx < 0 or x + xx > tankw):
+                    if not (grid[y + yy, x + xx]).resident==0:
+                        if (grid[y + yy, x + xx]).resident.length<self.length:
                             #chance of successful cannibalism is based on size difference between hunter & huntee
-                            cannibalSuccess = (self.length / grid[y+yy,x+xx].resident.length) - 1
+                            cannibalSuccess = (self.length / grid[y + yy, x + xx].resident.length) - 1
                             if np.random.uniform() > cannibalSuccess:
-                                newX=x+xx
-                                newY=y+yy
+                                newX = x + xx
+                                newY = y + yy
                                 self.energy -= ENERGY_HUNTING
                                 
-                                grid[newY,newX].resident.eaten=True
+                                grid[newY, newX].resident.eaten=True
                                 amtFishEat = min((MAX_ENERGY - self.energy) / FISH_ENERGY_MULTIPLIER * self.length, grid[newY, newX].resident.length)  
                                 self.energy += amtFishEat * FISH_ENERGY_MULTIPLIER / self.length
                                 
@@ -230,16 +225,16 @@ class Tuna:
         
 
         #check if there is any empty neighboring cell
-        if 0 in okayMoveGrid[(y-1):(y+2), (x-1):(x+2)]:
+        if 0 in okayMoveGrid[(y - 1):(y + 2), (x - 1):(x + 2)]:
             #randomly generate a move until found an empty neighboring cell
             while (successMove == False):
-                newX = self.x + np.random.randint(-1, high=2)
-                newY = self.y + np.random.randint(-1, high=2)
+                newX = self.x + np.random.randint(-1, high = 2)
+                newY = self.y + np.random.randint(-1, high = 2)
                 if okayMoveGrid[newY, newX] == 0:
                     successMove = True
                     #update the okayMoveGrid of this new move
-                    okayMoveGrid[y,x] = 0
-                    okayMoveGrid[newY,newX] = 2
+                    okayMoveGrid[y, x] = 0
+                    okayMoveGrid[newY, newX] = 2
                     self.x = newX
                     self.y = newY
                     self.energy -= ENERGY_SWIMMING
@@ -264,7 +259,7 @@ class Tuna:
         then skip eating plankton this phase.
         """
         if self.alreadyAte:
-            self.alreadyAte=False
+            self.alreadyAte = False
             pass
             
         # Make Tuna energy gain proportional to weight
@@ -299,7 +294,7 @@ class Tuna:
         """
         remove tuna that have starved to death
         """
-        if self.energy<=MIN_ENERGY:            
+        if self.energy <= MIN_ENERGY:            
             return False
         elif self.energy < STARVED_THRES:
             if np.random.uniform() < STARVED_PROB:
@@ -316,7 +311,7 @@ class Tuna:
     jgn 5.25, adding random factor to growth so all are not the same size
     Tien 05/28/2017: add temperature growth multiplier and size-dependent variable growth rate
     """
-    def grow(self,grid, growthInterval):
+    def grow(self, grid, growthInterval):
         #All growth rate multipliers are based on daily value, so if the model wants to let larvae
         #   grow multiple times a day, the growth rate need to be adjusted
         #Assumption: every time step is one hour
