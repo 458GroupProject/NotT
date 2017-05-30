@@ -39,6 +39,11 @@ class animate:
         #plt.pause(.01)
         
         pygame.init()
+        
+        # Briefly pauses if mouse loses focus
+        if pygame.mouse.get_focused() == False:
+            fpsClock = pygame.time.Clock()
+            fpsClock.tick(0)
 
         # Set RGB colors
         RED = (255, 0, 0)
@@ -52,9 +57,6 @@ class animate:
         displaySim = pygame.display.set_mode((int((tankw+2)*win*2.5), (tankh+2)*win+150))
         displaySim.fill(WHITE)
         pygame.display.set_caption("Tuna Fishery")
-        
-        #dont need this
-        #self.createBorders(displaySim, BLACK)
         
         # Set running fps
         fpsClock = pygame.time.Clock()
@@ -90,9 +92,6 @@ class animate:
                 #watercolor=(0, int(255 * alpha), 255 - int(alpha * 255), 200)
                 watercolor=(0,int(255 * alpha),255 - int(alpha * 255),200)
                 pygame.gfxdraw.box(displaySim, pygame.Rect(r*win, c*win, win, win), watercolor)
-                #self.createBorders(displaySim, BLACK)
-
-
 
         #Iteration 2 for tuna only
         #iteration through rows
