@@ -141,7 +141,7 @@ def remove():
             numEatenAlive+=1
             numAlive-=1 
         #removing starving tuna
-        if not t.update(grid):
+        elif not t.update(grid):
             grid[t.y,t.x].tuna=False
             grid[t.y,t.x].resident=0
             tuna.remove(t)
