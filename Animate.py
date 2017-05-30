@@ -33,9 +33,10 @@ class animate:
          self.maxPlankton=mp
          self.trial=trial
     
-    def vis(self, grid, cycle, numAlive, avgLength, avgEnergy, numStarved, numEatenAlive, feedInterval):  
+    def vis(self, grid, cycle, numAlive, avgLength, avgEnergy, numStarved, numEatenAlive, feedInterval,initTemperature,initPop,VISIBILITY):  
         # Center pygame window
         os.environ['SDL_VIDEO_CENTERED'] = '1'
+        
         
         pygame.init()
         

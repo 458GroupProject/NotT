@@ -275,7 +275,7 @@ def run(iterations, feedInterval, growthInterval, fishFoodRatio, run, animation,
                 
             if animation:
                 A=animate(maxFood,trial)
-                A.vis(grid,cycle,numAlive, avgLength, avgEnergy, numStarved, numEatenAlive, feedInterval)
+                A.vis(grid,cycle,numAlive, avgLength, avgEnergy, numStarved, numEatenAlive, feedInterval,initTemperature,initPop,VISIBILITY)
 
            # print str(cycle)+" Avg Size: "+str(round(avgLength,1)) + " Avg Energy: "+ str(round(avgEnergy,2)) + " Alive: " + str(numAlive)
             
@@ -344,13 +344,13 @@ inittemps=[]
 avglength=[]
 
 #changing initPop by steps of 100, up to 1600, completely full grid
-for i in range(10):
+for i in range(12):
     global initPop, tankw, tankh, tile_width
-    initTemperature=(5*i)
+    initTemperature=22+(i*.5)
     print initTemperature
     inittemps.append(initTemperature)
     #test 720 time steps, feed every 12 steps, grow every 24 steps, 50:50 fish:plankton mix,10 runs to average data)
-    data=run(720, 12, 24, .5, 1, False, i)
+    data=run(720, 12, 24, .5, 10, True, i)
     numliving.append(data[0])
     avglength.append(data[3])
 
@@ -360,8 +360,8 @@ avglength=N.array(avglength)
 yeild=numliving*avglength
 
 fig1=plt.figure()
-plt.plot(inittemps,avglength)
-plt.title("Initial temperature vs. Final avg length)")
-plt.xlabel("temmp celcius")
-plt.ylabel("avg length at 30 days mm")
+plt.plot(inittemps,yeild)
+plt.title("Initial temperature vs. Yield 30 days (num Alive*avgLength) (10 run avg)")
+plt.xlabel("temp Celcius")
+plt.ylabel("tuna alive at 720 Hr.")
 plt.show()    
