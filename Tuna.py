@@ -48,8 +48,6 @@ environment."
 #-----------------------Constant variables------------------------------
 MAX_ENERGY = 1.0
 MIN_ENERGY = 0.0
-HUNGRY=1.0 #not working yet
-STARVE=0.0
 STARVED_THRES = 0.4    #increased, as tuna grew too fast and starved
 STARVED_PROB = 0.5      #probability for a starving larvae to die
 INIT_LENGTH = 3.0       #use mm as base length unit
@@ -59,7 +57,6 @@ GROWTH_MULTIPLIER_ABOVE_7MM = 0.128
 
 ENERGY_SWIMMING = 0.075   #energy spent for regular swim
 ENERGY_HUNTING = 0.125     #energy spent for hunting
-SCHOOLING_SIZE = 28
 VISION=2 #cells moore neghborhood
 AGGRESSION=.50 #liklihood to attack another tuna
 TEMP_LOW = 22 #lower temperature threshold for appropriate tuna life
@@ -73,7 +70,7 @@ from Consts import *
 
 class Tuna:
     # jgn 5.25 added random factor to tuna init length for more variability of size
-    def __init__(self, xLoc, yLoc, length = INIT_LENGTH+np.random.uniform(-0.5,0.5), sightRadius=1, energy=INIT_ENERGY, state="Alive"):
+    def __init__(self, xLoc, yLoc, length = INIT_LENGTH+np.random.uniform(-0.5,0.5), sightRadius=1, energy=INIT_ENERGY):
         """Constructor that makes a Tuna object.
 
         xLoc: gives the x-coordinate also known as Column
@@ -89,7 +86,6 @@ class Tuna:
         self.length = length
         self.sightRadius = sightRadius 
         self.energy = energy
-        self.state = state
         
         #If the tuna ate during hunting phase, skip eating plankton
         self.alreadyAte=False
@@ -98,38 +94,17 @@ class Tuna:
         #eaten :(
         self.eaten=False
         
-        #Flag for when tuna is large enough to follow schooling behavior
-        self.isSchooling=False
 
-    def stateInt(self):
-        if self.state == "Alive":
-            return 1
-        elif self.state == "DeadStarved":
-            return 2
-        elif self.state == "DeadEaten":
-            return 3
-        else:
-            raise ValueError
-     
     """
     This is the main move method which will be called from the driver, depending
     on the tuna's state it will then call other methods:
-    If isHungry (energy level below some constant) then it will search for food
-    If not hungry it will do the next default move which is schooling behavior
-    (we can implement this last as it only effects relatively large tuna (25 days old))
-    for now just have it call random move
-    
-    Finally if it's not hungry and not large enough to follow schooling behavior
-    do the default random move
+    If is hungry (energy level below some constant) then it will search for food
+    If not hungry it will do the default random move
     """       
     def move(self, movegrid, grid):
         
-        if self.energy<HUNGRY:
+        if self.energy<MAX_ENERGY:
             self.lookForFood(movegrid, grid)
-        
-        elif self.length>SCHOOLING_SIZE:
-            self.randomMove(movegrid)
-        
         else:
             self.randomMove(movegrid)
      
@@ -169,7 +144,6 @@ class Tuna:
         newY = y   #the next potential y-coordinate
         
         #available squares
-        possible=[]
         mostFood=0
         
         #current grid is an option
@@ -235,14 +209,6 @@ class Tuna:
                                 #self.x=newX
                                 #self.y=newY
                                 break
-         
-    
-    """
-    Schooling behavior which is for now, just random movement
-    """
-    def schoolMove(self, moveGrid):
-        self.randomMove(moveGrid)
-
         
     
     def randomMove(self, okayMoveGrid):
@@ -280,16 +246,17 @@ class Tuna:
                     self.energy -= ENERGY_SWIMMING
 
     
-    """
-    I think we are going to need to change this method a bit so that it only
-    accounts for eating plankton, since tuna cannot occupy the same cell
-    Cannibalization will take place during the move phase as one tuna takes the
-    place of another. 
-    """
     def eat(self, grid):
         """Tuna eats food and gains amount proportional to weight
 
         grid: the enviroment grid that holds the population
+        
+        To determine the energy value gain by eating, we scale the amount eat with the larvae
+            length and multiply by an food-type multiplier
+                For example: tuna eats X unit of plankton food, convert to energy would be:
+                                energy_gain = X_plankton * PLANKTON_ENERGY_MULTIPLIER / larvae_length
+        Vice versa, the amount of food-type needed to gain a certain amount of energy can be
+            inferred based on the above equation
 
         """
         
@@ -316,7 +283,7 @@ class Tuna:
                 grid[self.y, self.x].updateFood(-amtPlanktonEat, -amtFishEat)
             #Case of large larvae that can eat both plankton and fish-based
             else:
-                #priority fish-based food
+                #priority fish-based food, so eat fish-based food first if available
                 amtFishEat = min((MAX_ENERGY - self.energy) / FISH_ENERGY_MULTIPLIER * self.length, grid[self.y, self.x].foodFish)  
                 self.energy += amtFishEat * FISH_ENERGY_MULTIPLIER / self.length
                 #if tuna's energy is still not maxed out after eating fish-based food, eat plankton also
@@ -333,7 +300,7 @@ class Tuna:
         """
         remove tuna that have starved to death
         """
-        if self.energy<STARVE:            
+        if self.energy<=MIN_ENERGY:            
             return False
         elif self.energy < STARVED_THRES:
             if np.random.uniform() < STARVED_PROB:
