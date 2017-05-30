@@ -33,12 +33,6 @@ class animate:
          self.trial=trial
     
     def vis(self, grid, cycle, numAlive, avgLength, avgEnergy, numStarved, numEatenAlive, feedInterval):        
-        #plt.title("Hour "+str(cycle)+":00")
-        #plt.xlabel("Tuna Alive: "+str(numAlive)+"  AvgSize: "+str(round(avgLength,1)) + "  AvgEnergy: "+ str(round(avgEnergy,2)))
-        #plt.ylabel("numStarved "+ str(numStarved)+"\n" + "numEatenAlive " +str(numEatenAlive))
-        #plt.draw()
-        #plt.pause(.01)
-        
         pygame.init()
 
         # Set RGB colors
@@ -53,9 +47,6 @@ class animate:
         displaySim = pygame.display.set_mode((int((tankw+2)*win*2.5), (tankh+2)*win+150))
         displaySim.fill(WHITE)
         pygame.display.set_caption("Tuna Fishery")
-        
-        #dont need this
-        #self.createBorders(displaySim, BLACK)
         
         # Set running fps
         fpsClock = pygame.time.Clock()
@@ -91,9 +82,6 @@ class animate:
                 #watercolor=(0, int(255 * alpha), 255 - int(alpha * 255), 200)
                 watercolor=(0,int(255 * alpha),255 - int(alpha * 255),200)
                 pygame.gfxdraw.box(displaySim, pygame.Rect(r*win, c*win, win, win), watercolor)
-                #self.createBorders(displaySim, BLACK)
-
-
 
         #Iteration 2 for tuna only
         #iteration through rows
@@ -122,7 +110,6 @@ class animate:
                     else:
                         color=RED
                     pygame.draw.circle(displaySim, color, (r*win+int(.5*win), c*win+int(.5*win)), size, size)
-        
         
         myfont = pygame.font.SysFont("arial", 20)
 
@@ -188,9 +175,3 @@ class animate:
         displaySim.blit(label15, (tankw*win+50, 400))
         displaySim.blit(label16, (tankw*win+50, 425))
         pygame.display.update()
-
-    def createBorders(self, screen, color):
-        pygame.draw.rect(screen, color, (0, 0, tankw, 2)) 
-        pygame.draw.rect(screen, color, (0, 0, 2, tankh))
-        pygame.draw.rect(screen, color, (tankw - 2, 0, 2, tankh))
-        pygame.draw.rect(screen, color, (0, tankh - 2, tankw, 2))
