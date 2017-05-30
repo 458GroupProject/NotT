@@ -52,7 +52,7 @@ HUNGRY=1.0 #not working yet
 STARVE=0.0
 STARVED_THRES = 0.4    #increased, as tuna grew too fast and starved
 STARVED_PROB = 0.5      #probability for a starving larvae to die
-INIT_LENGTH = 3.0       #use mm as base length unit
+INIT_LENGTH = 2.794       #use mm as base length unit
 INIT_ENERGY = 0.5
 GROWTH_MULTIPLIER_BELOW_7MM = 0.055
 GROWTH_MULTIPLIER_ABOVE_7MM = 0.128
@@ -241,9 +241,7 @@ class Tuna:
     Schooling behavior which is for now, just random movement
     """
     def schoolMove(self, moveGrid):
-        self.randomMove(moveGrid)
-
-        
+        self.randomMove(moveGrid)  
     
     def randomMove(self, okayMoveGrid):
         """Randomly move the tuna to a neighboring cell if available
@@ -357,13 +355,12 @@ class Tuna:
         intervalMultiplier = growthInterval / HOUR_PER_DAY
         # If under STARVED_THRES, Tuna is starving and does not grow
         previousLength = self.length
-        tempGrowthRate = 1.0
         if self.energy > STARVED_THRES:
             #determine temperature growth multiplier, with 22 Celsius as low, 28 Celsius as high
             #temperature above or below is range is not suitable for tuna, each 1 degree increase raises
             #growth rate by TEMP_MULTIPLIER 
             if grid[self.y, self.x].temperature >= TEMP_LOW and grid[self.y, self.x].temperature <= TEMP_HIGH:
-                tempGrowthRate += ((grid[self.y, self.x].temperature % TEMP_LOW) * TEMP_MULTIPLIER)
+                0.9906 += ((grid[self.y, self.x].temperature % TEMP_LOW) * TEMP_MULTIPLIER)
             
             #growth rate varies based on size, below 7mm digestive system is not developed enough to eat fish-based food, hence
             # lower rate        
