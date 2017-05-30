@@ -57,8 +57,8 @@ INIT_ENERGY = 0.5
 GROWTH_MULTIPLIER_BELOW_7MM = 0.055
 GROWTH_MULTIPLIER_ABOVE_7MM = 0.128
 
-ENERGY_SWIMMING = 0.085   #energy spent for regular swim
-ENERGY_HUNTING = 0.135     #energy spent for hunting
+ENERGY_SWIMMING = 0.075   #energy spent for regular swim
+ENERGY_HUNTING = 0.125     #energy spent for hunting
 SCHOOLING_SIZE = 28
 VISION=2 #cells moore neghborhood
 AGGRESSION=.50 #liklihood to attack another tuna
@@ -222,7 +222,6 @@ class Tuna:
                             #chance of successful cannibalism is based on size difference between hunter & huntee
                             cannibalSuccess = (self.length / grid[y+yy,x+xx].resident.length) - 1
                             if np.random.uniform() > cannibalSuccess:
-                                print "CANNIBAL!"
                                 newX=x+xx
                                 newY=y+yy
                                 self.energy -= ENERGY_HUNTING
@@ -330,10 +329,7 @@ class Tuna:
     def update(self, grid):
         """Updates the weight and size of the Tuna.
         """
-        #
-        ##Subtract used energy
-        #self.useEnergy()
-        
+
         """
         remove tuna that have starved to death
         """
@@ -347,13 +343,6 @@ class Tuna:
         else:
             return True
     
-    #"""
-    #Tuna need to deplete energy swimming, for now this is constant every turn,
-    #We may want to make them use more energy when they move and according to their
-    #size, to be implemented later
-    #"""
-    #def useEnergy(self):
-    #    self.energy-=(ENERGY_SWIMMING*self.length)
     
     """
     Growing algorithm

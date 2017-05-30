@@ -10,7 +10,7 @@ initPop=1200.0
 
 #maxPlankton value per cell initially so that a larvae with initial energy value
 #   of 0.5 at and average lenth of 3mm could eat and reach 1.0 energy value
-maxPlankton=3.0
+maxInitPlankton=3.0
 
 #initial temperature value
 initTemperature = 25.0

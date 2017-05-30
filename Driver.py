@@ -58,10 +58,10 @@ will be the liklihookd of a larva starting in a certain cell
 """
 def init():
 
-    global numAlive, tuna, tankh, tankw, maxPlankton
+    global numAlive, tuna, tankh, tankw
     #creating h by w water grid, with 1 boundary
     #randomly assign food value for each water cell up to a maximum value
-    simplelist = [water(N.random.uniform(0.0, maxPlankton), 0.0, initTemperature) for w in xrange((tankh+2) * (tankw+2))]    
+    simplelist = [water(N.random.uniform(0.0, maxInitPlankton), 0.0, initTemperature) for w in xrange((tankh+2) * (tankw+2))]    
     grid=N.array(simplelist)
     grid=N.reshape(grid, (tankh + 2,tankw + 2))    
                 
@@ -174,19 +174,9 @@ Parameter:  + iterations: number of time steps
             + fishFoodRatio: the ratio of fish:plankton food in floating point
                 For example: 0.30 means 30% of fish food and 70% of plankton food
 """
-def run(iterations, feedInterval, growthInterval, fishFoodRatio):
-    global grid, numAlive, avgLength, avgEnergy, numStarved, numEatenAlive, maxPlankton, totalLength, totalEnergy
-    #how many time steps one simulation will last
-    # 30 days, 1 time step per hour 30x24=720
-    
-    runs=1
-    
-    phase=0
-    cycle=0
-    
-    maxFish = 0.0  #maximum value of fish food each water cell can hold
-    #maximum value of total food (fish & plankton) expressed in term of energy
-    maxFood = (maxPlankton * PLANKTON_ENERGY_MULTIPLIER) + (maxFish * FISH_ENERGY_MULTIPLIER)
+def run(iterations, feedInterval, growthInterval, fishFoodRatio, run, animation=False):
+    global grid, numAlive, avgLength, avgEnergy, numStarved, numEatenAlive, totalLength, totalEnergy, tuna
+
     #data for analysis
     arr_iterations = N.array([],dtype='i')
     arr_numAlive = N.array([],dtype='i')
@@ -198,10 +188,20 @@ def run(iterations, feedInterval, growthInterval, fishFoodRatio):
     arr_avgEnergy = N.array([],dtype='d')
 
     #A=animate(maxFood)
-    B=analysis(iterations, runs)
+    B=analysis(iterations, run)
     
-    for i in range(runs):
-        
+    for i in range(run):
+        maxPlankton = maxInitPlankton    #maximum value of plankton food each water cell can hold
+        maxFish = 0.0        #maximum value of fish food each water cell can hold
+        #maximum value of total food (fish & plankton) expressed in term of energy
+        maxFood = (maxPlankton * PLANKTON_ENERGY_MULTIPLIER) + (maxFish * FISH_ENERGY_MULTIPLIER)
+        cycle = 0
+        numAlive = 0
+        numStarved = 0
+        numEatenAlive = 0
+        phase = 0    #phases of the tuna cycle (consumption, movement, remove)
+        tuna = []    #list to hold tuna for each simulation run
+
         arr_iterations = N.append(arr_iterations,0)
         arr_numAlive = N.append(arr_numAlive,numAlive)
         arr_numStarved = N.append(arr_numStarved,numStarved)
@@ -271,9 +271,10 @@ def run(iterations, feedInterval, growthInterval, fishFoodRatio):
             if phase==4:
                 phase=1
                 
+            if animation:
+                A=animate(maxFood)
+                A.vis(grid,cycle,numAlive, avgLength, avgEnergy, numStarved, numEatenAlive, feedInterval)
 
-            A=animate(maxFood)
-            A.vis(grid,cycle,numAlive, avgLength, avgEnergy, numStarved, numEatenAlive, feedInterval)
             print str(cycle)+" Avg Size: "+str(round(avgLength,1)) + " Avg Energy: "+ str(round(avgEnergy,2)) + " Alive: " + str(numAlive)
             
             arr_iterations = N.append(arr_iterations, j)
@@ -286,7 +287,8 @@ def run(iterations, feedInterval, growthInterval, fishFoodRatio):
             arr_avgEnergy = N.append(arr_avgEnergy,avgEnergy)
             
             cycle+=1
-            
+  
+                    
         B.graph(i, arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy)
         
         # for data analysis
@@ -295,4 +297,4 @@ def run(iterations, feedInterval, growthInterval, fishFoodRatio):
     B.analyze()    
 
 #test 720 time steps, feed every 12 steps, grow every 24 steps, 50:50 fish:plankton mix)
-run(720, 12, 24, .5)
+run(720, 12, 24, .5, 10, animation=True)
