@@ -8,7 +8,7 @@ Matt 5/28: class created
 class analysis:
     def __init__(self,it, rn):
         self.iterations = it + 1
-        self.runs = rn
+        self.runs = rn + 1
         for i in range(self.runs):
             exec("self.arr_data_" + str(i) + " = N.empty([8,self.iterations],dtype='d')")
         

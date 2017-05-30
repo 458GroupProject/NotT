@@ -177,16 +177,6 @@ Parameter:  + iterations: number of time steps
 def run(iterations, feedInterval, growthInterval, fishFoodRatio, run, animation=False):
     global grid, numAlive, avgLength, avgEnergy, numStarved, numEatenAlive, totalLength, totalEnergy, tuna
 
-    #data for analysis
-    arr_iterations = N.array([],dtype='i')
-    arr_numAlive = N.array([],dtype='i')
-    arr_numStarved = N.array([],dtype='i')
-    arr_numCorpses = N.array([],dtype='i')
-    arr_numEatenAlive = N.array([],dtype='i')
-    arr_numCorpsesEaten = N.array([],dtype='i')
-    arr_avgLength = N.array([],dtype='d')
-    arr_avgEnergy = N.array([],dtype='d')
-
     #A=animate(maxFood)
     B=analysis(iterations, run)
     
@@ -201,6 +191,16 @@ def run(iterations, feedInterval, growthInterval, fishFoodRatio, run, animation=
         numEatenAlive = 0
         phase = 0    #phases of the tuna cycle (consumption, movement, remove)
         tuna = []    #list to hold tuna for each simulation run
+       
+        #data for analysis
+        arr_iterations = N.array([],dtype='i')
+        arr_numAlive = N.array([],dtype='i')
+        arr_numStarved = N.array([],dtype='i')
+        arr_numCorpses = N.array([],dtype='i')
+        arr_numEatenAlive = N.array([],dtype='i')
+        arr_numCorpsesEaten = N.array([],dtype='i')
+        arr_avgLength = N.array([],dtype='d')
+        arr_avgEnergy = N.array([],dtype='d')
 
         arr_iterations = N.append(arr_iterations,0)
         arr_numAlive = N.append(arr_numAlive,numAlive)
@@ -288,8 +288,8 @@ def run(iterations, feedInterval, growthInterval, fishFoodRatio, run, animation=
             
             cycle+=1
   
-                    
-        B.graph(i, arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy)
+        if animation:
+            B.graph(i, arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy)
         
         # for data analysis
         B.collect(i, arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy)
@@ -297,4 +297,4 @@ def run(iterations, feedInterval, growthInterval, fishFoodRatio, run, animation=
     B.analyze()    
 
 #test 720 time steps, feed every 12 steps, grow every 24 steps, 50:50 fish:plankton mix)
-run(720, 12, 24, .5, 10, animation=True)
+run(720, 12, 24, .5, 10, animation=False)
