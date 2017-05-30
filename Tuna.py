@@ -82,7 +82,7 @@ class Tuna:
         """
         self.x = xLoc
         self.y = yLoc
-        self.length = length
+        self.length = INIT_LENGTH+np.random.uniform(-0.5,0.5)
         self.sightRadius = sightRadius 
         self.energy = energy
         
