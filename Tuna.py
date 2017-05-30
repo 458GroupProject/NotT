@@ -50,17 +50,18 @@ MAX_ENERGY = 1.0
 MIN_ENERGY = 0.0
 HUNGRY=1.0 #not working yet
 STARVE=0.0
-STARVED_THRES = 0.2    #increased, as tuna grew too fast and starved
+STARVED_THRES = 0.4    #increased, as tuna grew too fast and starved
+STARVED_PROB = 0.5      #probability for a starving larvae to die
 INIT_LENGTH = 3.0       #use mm as base length unit
 INIT_ENERGY = 0.5
 GROWTH_MULTIPLIER_BELOW_7MM = 0.055
 GROWTH_MULTIPLIER_ABOVE_7MM = 0.128
 
-ENERGY_SWIMMING = 0.05   #energy spent for regular swim
-ENERGY_HUNTING = 0.1     #energy spent for hunting
+ENERGY_SWIMMING = 0.085   #energy spent for regular swim
+ENERGY_HUNTING = 0.135     #energy spent for hunting
 SCHOOLING_SIZE = 28
 VISION=2 #cells moore neghborhood
-AGGRESSION=.20 #liklihood to attack another tuna
+AGGRESSION=.50 #liklihood to attack another tuna
 TEMP_LOW = 22 #lower temperature threshold for appropriate tuna life
 TEMP_HIGH = 28 #higher temperature threshold for appropriate tuna life
 TEMP_MULTIPLIER = 0.1 #temperature growth rate multiplier 
@@ -336,9 +337,13 @@ class Tuna:
         """
         remove tuna that have starved to death
         """
-        if self.energy<STARVE:
-            
+        if self.energy<STARVE:            
             return False
+        elif self.energy < STARVED_THRES:
+            if np.random.uniform() < STARVED_PROB:
+                return False
+            else:
+                return True     
         else:
             return True
     
@@ -356,7 +361,11 @@ class Tuna:
     jgn 5.25, adding random factor to growth so all are not the same size
     Tien 05/28/2017: add temperature growth multiplier and size-dependent variable growth rate
     """
-    def grow(self,grid):
+    def grow(self,grid, growthInterval):
+        #All growth rate multipliers are based on daily value, so if the model wants to let larvae
+        #   grow multiple times a day, the growth rate need to be adjusted
+        #Assumption: every time step is one hour
+        intervalMultiplier = growthInterval / HOUR_PER_DAY
         # If under STARVED_THRES, Tuna is starving and does not grow
         previousLength = self.length
         tempGrowthRate = 1.0
@@ -370,8 +379,8 @@ class Tuna:
             #growth rate varies based on size, below 7mm digestive system is not developed enough to eat fish-based food, hence
             # lower rate        
             if self.length < PLANKTON_ONLY_SIZE:
-                self.length *= (1 + (self.energy * GROWTH_MULTIPLIER_BELOW_7MM) * tempGrowthRate * np.random.uniform(0.95,1.05))
+                self.length *= (1 + (self.energy * GROWTH_MULTIPLIER_BELOW_7MM * tempGrowthRate * intervalMultiplier * np.random.uniform(0.95,1.05)))
             else:
-                self.length *= (1 + (self.energy * GROWTH_MULTIPLIER_ABOVE_7MM) * tempGrowthRate * np.random.uniform(0.95,1.05))
+                self.length *= (1 + (self.energy * GROWTH_MULTIPLIER_ABOVE_7MM * tempGrowthRate * intervalMultiplier * np.random.uniform(0.95,1.05)))
             #new energy value after growth is relative to the growth in size
             self.energy = previousLength / self.length

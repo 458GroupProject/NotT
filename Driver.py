@@ -153,12 +153,12 @@ def remove():
 calls all the tuna grow methods
 Also updates average 
 """
-def growth():
+def growth(growthInterval):
     global numAlive, avgLength, avgEnergy, numStarved, totalLength, totalEnergy
     totalLength = 0.0
     totalEnergy = 0.0
     for t in tuna:
-        t.grow(grid)
+        t.grow(grid, growthInterval)
         totalLength+=t.length
         totalEnergy+=t.energy
     avgLength = totalLength / numAlive
@@ -238,7 +238,7 @@ def run(iterations, feedInterval, growthInterval, fishFoodRatio):
             #update larvae growth at the appropriate interval set by user
             if j % growthInterval == 0:  
                 previousTotalLength = totalLength
-                growth()
+                growth(growthInterval)
                 #determine the total increase/decrease in larvae length from the previous growth period (in %)
                 lengthPercentIncrease = (totalLength - previousTotalLength) / previousTotalLength
                 #increase/decrease the maximum amount of feed of fish-based & plankton-based relative to the increase/decrease
@@ -252,14 +252,12 @@ def run(iterations, feedInterval, growthInterval, fishFoodRatio):
                 maxFish = maxFood * fishFoodRatio
                 maxPlankton = (maxFood - maxFish) / PLANKTON_ENERGY_MULTIPLIER         
 
-            #Feeding only start after the first growth period since the initial food value set by init() should be enough
-            #   to sustain the first growth period.
             #Feeding interval is set by user
-            if (j >= growthInterval) and (j % feedInterval == 0):
+            if (j % feedInterval == 0):
                 #add appropriate amount of fish-based & plankton-based food, depending on how many feeding periods are
-                #    in between each growth period                
-                addedPlankton = maxPlankton * (float(feedInterval) / growthInterval)
-                addedFish = maxFish * (float(feedInterval) / growthInterval)
+                #    in each day              
+                addedPlankton = maxPlankton * (float(feedInterval) / HOUR_PER_DAY)
+                addedFish = maxFish * (float(feedInterval) / HOUR_PER_DAY)
                 #update the maximum amount of total food each water cell can hold after larvae growth
                 maxFood = (maxPlankton * PLANKTON_ENERGY_MULTIPLIER) + (maxFish * FISH_ENERGY_MULTIPLIER)
                 #add food to each water cell
@@ -275,7 +273,7 @@ def run(iterations, feedInterval, growthInterval, fishFoodRatio):
                 
 
             A=animate(maxFood)
-            A.vis(grid,cycle,numAlive, avgLength, avgEnergy, numStarved, numEatenAlive)
+            A.vis(grid,cycle,numAlive, avgLength, avgEnergy, numStarved, numEatenAlive, feedInterval)
             print str(cycle)+" Avg Size: "+str(round(avgLength,1)) + " Avg Energy: "+ str(round(avgEnergy,2)) + " Alive: " + str(numAlive)
             
             arr_iterations = N.append(arr_iterations, j)
