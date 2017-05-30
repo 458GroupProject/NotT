@@ -24,7 +24,7 @@ VISIBILITY=0
 #global_run for data graphing
 current_run = 1
 
-#cm
+#mm
 tile_width=15
 
 PLANKTON_ENERGY_MULTIPLIER = 0.5

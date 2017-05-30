@@ -150,9 +150,15 @@ class animate:
         label10=myfont.render("Bluer square=less food | White dot flash= Cannibal Tuna instance", 1, BLACK)
         
         label10b=myfont.render("Model Constants:", 1, RED)
-        label11=myfont.render("Tank cross-section dimensions:  width: " +str(tankw*tile_width)+"cm x height: "+str(tankh*tile_width)+"cm x depth: "+str(tile_width)+"cm", 1, RED)
-        label11b=myfont.render("Tank volume:  "+str(tankw*tankh*tile_width*tile_width*tile_width*tile_width/1000)+" L", 1, RED)
-        label12=myfont.render("Initial hatchling density: " + str(round(initPop*1000/(tankw*tankh*tile_width*tile_width*tile_width*tile_width),6))+" /L", 1, RED)
+        #calculating volume:
+        width=tankw*tile_width #cm
+        height=tankh*tile_width #cm
+        depth = tile_width #cm
+        volume= width/10.0*height/10.0*depth/10.0 #cm cubed
+        volume=volume/1000 #L cubed 
+        label11=myfont.render("Tank cross-section dimensions:  width: " +str(width)+"mm x height: "+str(height)+"mm x depth: "+str(depth)+"mm", 1, RED)
+        label11b=myfont.render("Tank volume:  "+str(volume)+" L", 1, RED)
+        label12=myfont.render("Initial hatchling density: " + str(round(initPop/volume,2))+" /L", 1, RED)
         
         label13=myfont.render("Tuna Aggression: " +str(AGGRESSION)+" (probability to attack tuna when hungry)", 1, RED)
         label14=myfont.render("Water Visibility Modifier: "+str(VISIBILITY)+" (-15cm of vision for hunting)", 1, RED)
