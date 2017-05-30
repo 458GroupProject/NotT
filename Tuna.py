@@ -64,7 +64,6 @@ TEMP_HIGH = 28 #higher temperature threshold for appropriate tuna life
 TEMP_MULTIPLIER = 0.1 #temperature growth rate multiplier 
 
 
-
 import numpy as np
 from Consts import *
 
@@ -323,7 +322,7 @@ class Tuna:
         #Assumption: every time step is one hour
         intervalMultiplier = growthInterval / HOUR_PER_DAY
         # If under STARVED_THRES, Tuna is starving and does not grow
-        tempGrowthRate = 1.0
+        tempGrowthRate = 0.9906
         previousLength = self.length
         if self.energy > STARVED_THRES:
             #determine temperature growth multiplier, with 22 Celsius as low, 28 Celsius as high
