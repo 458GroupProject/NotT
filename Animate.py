@@ -157,12 +157,13 @@ class animate:
         volume=volume/1000 #L cubed 
         label11=myfont.render("Tank cross-section dimensions:  width: " +str(width)+"mm x height: "+str(height)+"mm x depth: "+str(depth)+"mm", 1, RED)
         label11b=myfont.render("Tank volume:  "+str(volume)+" L", 1, RED)
+        label11c=myfont.render("Initial Tuna pop: " + str(initPop), 1, RED)
         label12=myfont.render("Initial hatchling density: " + str(round(initPop/volume,2))+" /L", 1, RED)
         
         label13=myfont.render("Tuna Aggression: " +str(AGGRESSION)+" (probability to attack tuna when hungry)", 1, RED)
         label14=myfont.render("Water Visibility Modifier: "+str(VISIBILITY)+" (-15cm of vision for hunting)", 1, RED)
         label15=myfont.render("Water Temperature: "+str(initTemperature)+" c", 1, RED)
-        label16=myfont.render("Feed Internal : "+str(feedInterval)+" hrs", 1, RED)
+        label16=myfont.render("Feed Interval : "+str(feedInterval)+" hrs", 1, RED)
         
         displaySim.blit(labelvh, (tankw*win+100, 0))
         displaySim.blit(labelh, (tankw*win+95, 30))
@@ -180,6 +181,7 @@ class animate:
         displaySim.blit(label10b, (tankw*win+50, 250))
         displaySim.blit(label11, (tankw*win+50, 275))
         displaySim.blit(label11b, (tankw*win+50, 300))
+        displaySim.blit(label11c, (tankw*win+250, 300))
         displaySim.blit(label12, (tankw*win+50, 325))
         displaySim.blit(label13, (tankw*win+50, 350))
         displaySim.blit(label14, (tankw*win+50, 375))
