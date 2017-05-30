@@ -214,7 +214,7 @@ class Tuna:
         newY = 0   #the next potential y-coordinate
         
         
-        for yy in np.arange(VISION+1):
+        for yy in np.arange(VISION-VISIBILITY+1):
             for xx in np.arange(VISION-VISIBILITY+1):
                 if not (y+yy<0 or y+yy>tankh or x+xx<0 or x+xx>tankw):
                     if not (grid[y+yy,x+xx]).resident==0:
