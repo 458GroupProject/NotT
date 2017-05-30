@@ -24,6 +24,9 @@ VISIBILITY=0
 #global_run for data graphing
 current_run = 1
 
+#cm
+tile_width=15
+
 PLANKTON_ENERGY_MULTIPLIER = 0.5
 FISH_ENERGY_MULTIPLIER = 1.0
 PLANKTON_ONLY_SIZE = 7.0 #larvae below this size can only eat plankton food
