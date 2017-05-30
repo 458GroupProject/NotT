@@ -61,7 +61,7 @@ class animate:
 
         r_c=N.shape(grid)
         
-        #draw borders black
+        #draw borders black jgn, working for big square borders
         pygame.draw.rect(displaySim, BLACK, pygame.Rect(0, 0, (tankw+2)*win, (tankh+2)*win))
         
         #iteration for water only
@@ -89,7 +89,8 @@ class animate:
                 #watercolor=(0, int(255 * alpha), 255 - int(alpha * 255), 200)
                 watercolor=(0,int(255 * alpha),255 - int(alpha * 255),200)
                 pygame.gfxdraw.box(displaySim, pygame.Rect(r*win, c*win, win, win), watercolor)
-                self.createBorders(displaySim, BLACK)
+                #self.createBorders(displaySim, BLACK)
+
 
 
         #Iteration 2 for tuna only
@@ -142,7 +143,7 @@ class animate:
         label7 = myfont.render("num Starved to Death: "+str(numStarved), 1, BLACK)
         label8 = myfont.render("num Eaten Alive: " + str(numEatenAlive), 1, BLACK)
         
-        label9=myfont.render("red dot=tuna, greener square=more food, bluersquare=less food, WhiteDot= Cannibal Tuna", 1, BLACK)
+        label9=myfont.render("Red dot=Tuna |  Greener square=more food  |  Bluer square=less food | White dot flash= Cannibal Tuna instance", 1, BLACK)
         
         displaySim.blit(labelh, (tankw*win+195, 80))
         displaySim.blit(label, (tankw*win+200, 100))
