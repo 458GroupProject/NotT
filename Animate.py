@@ -1,5 +1,6 @@
 import numpy as N
 from Consts import*
+from Tuna import*
 import matplotlib.pyplot as plt
 
 import time
@@ -48,7 +49,7 @@ class animate:
         # Create window
         #window size multiplier
         win=12
-        displaySim = pygame.display.set_mode(((tankw+2)*win*2, (tankh+2)*win+150))
+        displaySim = pygame.display.set_mode((int((tankw+2)*win*2.5), (tankh+2)*win+150))
         displaySim.fill(WHITE)
         pygame.display.set_caption("Tuna Fishery")
         
@@ -122,7 +123,7 @@ class animate:
                     pygame.draw.circle(displaySim, color, (r*win+int(.5*win), c*win+int(.5*win)), size, size)
         
         
-        myfont = pygame.font.SysFont("arial", 25)
+        myfont = pygame.font.SysFont("arial", 20)
 
         # render text
         if cycle%24<10:
@@ -134,6 +135,8 @@ class animate:
             zero2="0"
         else:
             zero2=""
+        
+        labelvh=myfont.render("Model Variables:", 1, BLACK)
         labelh=myfont.render("Day:Hour ", 1, BLACK)
         label = myfont.render(zero2+str(cycle/24)+":"+zero+str(cycle%24)+":00", 1, BLACK)
         label2 = myfont.render("Feed #"+str(cycle/feedInterval), 1, BLACK)
@@ -146,18 +149,37 @@ class animate:
         label9=myfont.render("Red dot=Tuna |  Greener square=more food" , 1, BLACK)
         label10=myfont.render("Bluer square=less food | White dot flash= Cannibal Tuna instance", 1, BLACK)
         
-        displaySim.blit(labelh, (tankw*win+195, 80))
-        displaySim.blit(label, (tankw*win+200, 100))
-        displaySim.blit(label2, (tankw*win+200, 150))
-        displaySim.blit(label3, (tankw*win+200, 200))
-        displaySim.blit(label4, (tankw*win+200, 250))
-
-        displaySim.blit(label6, (tankw*win+200, 300))
-        displaySim.blit(label7, (tankw*win+200, 350))
-        displaySim.blit(label8, (tankw*win+200, 400))
-        displaySim.blit(label9, (100, tankh*win+50))
-        displaySim.blit(label10, (100, tankh*win+100))
+        label10b=myfont.render("Model Constants:", 1, RED)
+        label11=myfont.render("Tank cross-section dimensions:  width: " +str(tankw*tile_width)+"cm x height: "+str(tankh*tile_width)+"cm x depth: "+str(tile_width)+"cm", 1, RED)
+        label11b=myfont.render("Tank volume:  "+str(tankw*tankh*tile_width*tile_width*tile_width*tile_width/1000)+" L", 1, RED)
+        label12=myfont.render("Initial hatchling density: " + str(round(initPop*1000/(tankw*tankh*tile_width*tile_width*tile_width*tile_width),6))+" /L", 1, RED)
         
+        label13=myfont.render("Tuna Aggression: " +str(AGGRESSION)+" (probability to attack tuna when hungry)", 1, RED)
+        label14=myfont.render("Water Visibility Modifier: "+str(VISIBILITY)+" (-15cm of vision for hunting)", 1, RED)
+        label15=myfont.render("Water Temperature: "+str(initTemperature)+" c", 1, RED)
+        label16=myfont.render("Feed Internal : "+str(feedInterval)+" hrs", 1, RED)
+        
+        displaySim.blit(labelvh, (tankw*win+100, 0))
+        displaySim.blit(labelh, (tankw*win+95, 30))
+        displaySim.blit(label, (tankw*win+100, 50))
+        displaySim.blit(label2, (tankw*win+100, 75))
+        displaySim.blit(label3, (tankw*win+100, 100))
+        displaySim.blit(label4, (tankw*win+100, 125))
+
+        displaySim.blit(label6, (tankw*win+100, 150))
+        displaySim.blit(label7, (tankw*win+100, 175))
+        displaySim.blit(label8, (tankw*win+100, 200))
+        displaySim.blit(label9, (10, tankh*win+50))
+        displaySim.blit(label10, (10, tankh*win+100))
+        
+        displaySim.blit(label10b, (tankw*win+50, 250))
+        displaySim.blit(label11, (tankw*win+50, 275))
+        displaySim.blit(label11b, (tankw*win+50, 300))
+        displaySim.blit(label12, (tankw*win+50, 325))
+        displaySim.blit(label13, (tankw*win+50, 350))
+        displaySim.blit(label14, (tankw*win+50, 375))
+        displaySim.blit(label15, (tankw*win+50, 400))
+        displaySim.blit(label16, (tankw*win+50, 425))
         pygame.display.update()
 
     def createBorders(self, screen, color):
