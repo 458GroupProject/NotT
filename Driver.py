@@ -308,20 +308,29 @@ def run(iterations, feedInterval, growthInterval, fishFoodRatio, run, animation,
 numliving=[]
 #list of initial population densities
 initdensity=[]
+#list of final average lengths
+avglength=[]
 
 #changing initPop by steps of 100, up to 1600, completely full grid
-for i in range((tankw*tankh)/300):
+for i in range((tankw*tankh)/100):
     global initPop, tankw, tankh, tile_width
-    initPop=300*(i+1)
+    initPop=100*(i+1)
     print initPop
     initdensity.append(initPop/(tankw*tankh*tile_width*tile_width*tile_width/1000000.0))
     #test 720 time steps, feed every 12 steps, grow every 24 steps, 50:50 fish:plankton mix,10 runs to average data)
     data=run(720, 12, 24, .5, 1, False, i)
     numliving.append(data[0])
+    avglength.append(data[3])
+
+numliving=N.array(numliving)
+avglength=N.array(avglength)
+
+numliving*=avglength
 
 fig1=plt.figure()
-plt.plot(initdensity,numliving)
-plt.xlabel("Initial population density hatchlings/Liter")
-plt.ylabel("Average numliving at 30 days (10 runs)")
+plt.plot(initdensity,avglength)
+plt.title("Initial population Density vs. Final avg length)")
+plt.xlabel("hatchlings/Liter")
+plt.ylabel("avg length at 30 days mm")
 plt.show()
     
