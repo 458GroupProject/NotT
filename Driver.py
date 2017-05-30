@@ -10,6 +10,8 @@ from Tuna import Tuna
 from Animate import *
 from Analysis import *
 
+import matplotlib.pyplot as plt
+
 
 #-------------------------------------------------------------------------------
 """
@@ -174,7 +176,7 @@ Parameter:  + iterations: number of time steps
             + fishFoodRatio: the ratio of fish:plankton food in floating point
                 For example: 0.30 means 30% of fish food and 70% of plankton food
 """
-def run(iterations, feedInterval, growthInterval, fishFoodRatio, run, animation=False):
+def run(iterations, feedInterval, growthInterval, fishFoodRatio, run, animation, trial):
     global grid, numAlive, avgLength, avgEnergy, numStarved, numEatenAlive, totalLength, totalEnergy, tuna
 
     #A=animate(maxFood)
@@ -272,10 +274,10 @@ def run(iterations, feedInterval, growthInterval, fishFoodRatio, run, animation=
                 phase=1
                 
             if animation:
-                A=animate(maxFood)
+                A=animate(maxFood,trial)
                 A.vis(grid,cycle,numAlive, avgLength, avgEnergy, numStarved, numEatenAlive, feedInterval)
 
-            print str(cycle)+" Avg Size: "+str(round(avgLength,1)) + " Avg Energy: "+ str(round(avgEnergy,2)) + " Alive: " + str(numAlive)
+           # print str(cycle)+" Avg Size: "+str(round(avgLength,1)) + " Avg Energy: "+ str(round(avgEnergy,2)) + " Alive: " + str(numAlive)
             
             arr_iterations = N.append(arr_iterations, j)
             arr_numAlive = N.append(arr_numAlive,numAlive)
@@ -294,7 +296,32 @@ def run(iterations, feedInterval, growthInterval, fishFoodRatio, run, animation=
         # for data analysis
         B.collect(i, arr_iterations, arr_numAlive, arr_numStarved, arr_numCorpses, arr_numEatenAlive, arr_numCorpsesEaten, arr_avgLength, arr_avgEnergy)
         
-    B.analyze()    
+    return B.analyze()    
 
 #test 720 time steps, feed every 12 steps, grow every 24 steps, 50:50 fish:plankton mix)
-run(720, 12, 24, .5, 10, animation=False)
+#run(720, 12, 24, .5, 10, animation=False)
+
+
+
+
+#list of data generated avg num living at 30 days
+numliving=[]
+#list of initial population densities
+initdensity=[]
+
+#changing initPop by steps of 100, up to 1600, completely full grid
+for i in range((tankw*tankh)/300):
+    global initPop, tankw, tankh, tile_width
+    initPop=300*(i+1)
+    print initPop
+    initdensity.append(initPop/(tankw*tankh*tile_width*tile_width*tile_width/1000000.0))
+    #test 720 time steps, feed every 12 steps, grow every 24 steps, 50:50 fish:plankton mix,10 runs to average data)
+    data=run(720, 12, 24, .5, 1, False, i)
+    numliving.append(data[0])
+
+fig1=plt.figure()
+plt.plot(initdensity,numliving)
+plt.xlabel("Initial population density hatchlings/Liter")
+plt.ylabel("Average numliving at 30 days (10 runs)")
+plt.show()
+    

@@ -28,8 +28,9 @@ position = 10, 10
 os.environ['SDL_VIDEO_WINDOW_POS'] = str(position[0]) + "," + str(position[1])
 
 class animate:
-    def __init__(self, mp):
+    def __init__(self, mp,trial):
          self.maxPlankton=mp
+         self.trial=trial
     
     def vis(self, grid, cycle, numAlive, avgLength, avgEnergy, numStarved, numEatenAlive, feedInterval):        
         #plt.title("Hour "+str(cycle)+":00")
@@ -136,7 +137,7 @@ class animate:
         else:
             zero2=""
         
-        labelvh=myfont.render("Model Variables:", 1, BLACK)
+        labelvh=myfont.render("Trial # "+str(self.trial)+" Model Variables:", 1, BLACK)
         labelh=myfont.render("Day:Hour ", 1, BLACK)
         label = myfont.render(zero2+str(cycle/24)+":"+zero+str(cycle%24)+":00", 1, BLACK)
         label2 = myfont.render("Feed #"+str(cycle/feedInterval), 1, BLACK)
