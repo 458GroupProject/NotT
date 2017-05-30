@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import time
 import pygame, sys
 from pygame.locals import *
+import pygame.event
 import pygame.gfxdraw
 
 """
@@ -32,8 +33,17 @@ class animate:
          self.maxPlankton=mp
          self.trial=trial
     
-    def vis(self, grid, cycle, numAlive, avgLength, avgEnergy, numStarved, numEatenAlive, feedInterval):        
+    def vis(self, grid, cycle, numAlive, avgLength, avgEnergy, numStarved, numEatenAlive, feedInterval):  
+        # Center pygame window
+        os.environ['SDL_VIDEO_CENTERED'] = '1'
+        
         pygame.init()
+        
+        # Allows program to actually close
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit(0)
 
         # Set RGB colors
         RED = (255, 0, 0)
